@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dovite-backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      # Set to production mode
+      - ENVIRONMENT=production
+      # Connect directly to your Supabase PostgreSQL Database URL:
+      - DATABASE_URL=postgresql://postgres.ysrwyytqejyijorphvsc:Journal-dbdovite@aws-0-eu-west-3.pooler.supabase.com:6543/postgres
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change_me_in_production_secret_key_32_chars}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000,https://dovitejournal.org}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-sk_test_placeholder}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-whsec_placeholder}
+      - RESEND_API_KEY=${RESEND_API_KEY:-re_Ugsyy71p_H1Xk7ZDUwmvRbxpZDAv7aQs2}
+      - SENDER_EMAIL=${SENDER_EMAIL:-onboarding@resend.dev}
+      - EDITOR_EMAIL=${EDITOR_EMAIL:-editor@journal.com}
+    volumes:
+      # Persistent storage volume for manuscript uploads when running in Docker
+      - manuscript_uploads:/app/uploads
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dovite-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:-pk_test_placeholder}
+    depends_on:
+      - backend
+
+volumes:
+  manuscript_uploads:
