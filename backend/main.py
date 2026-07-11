@@ -25,11 +25,22 @@ import os
 
 # CORS configuration - read from environment variable or default to localhost
 allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000")
-origins = [origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()]
+
+if allowed_origins_env.strip() == "*":
+    origins = []
+    allow_origin_regex = r".*"
+else:
+    origins = [origin.strip().rstrip("/") for origin in allowed_origins_env.split(",") if origin.strip()]
+    if "http://localhost:3000" not in origins:
+        origins.append("http://localhost:3000")
+    if "http://127.0.0.1:3000" not in origins:
+        origins.append("http://127.0.0.1:3000")
+    allow_origin_regex = r"https://.*\.vercel\.app" if any("vercel.app" in o for o in origins) else None
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=allow_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
