@@ -32,6 +32,13 @@ def _send_email(recipient: str, subject: str, html_body: str, text_body: str):
     from dotenv import load_dotenv
     load_dotenv(override=True)
 
+    # 0. Intercept placeholder/demo domains so Gmail SMTP never attempts delivery and triggers Mailer-Daemon bounces
+    clean_recipient = recipient.strip().lower()
+    if any(clean_recipient.endswith(domain) for domain in ["@journal.com", "@example.com", "@test.com", "@demo.com"]) or "localhost" in clean_recipient:
+        print(f"[EMAIL SIMULATION - DEMO ACCOUNT] Intercepted outbound email to {recipient} (placeholder domain). Logging locally without sending SMTP.")
+        _log_to_file_and_console(recipient, subject, text_body)
+        return
+
     resend_key = os.getenv("RESEND_API_KEY")
     sendgrid_key = os.getenv("SENDGRID_API_KEY")
     smtp_server = os.getenv("SMTP_SERVER")
@@ -140,7 +147,8 @@ def send_new_submission_email(submission_id: str, title: str, author_name: str, 
         db.close()
 
     if not recipients:
-        recipients.add("editor@journal.com")
+        fallback = os.getenv("EDITOR_EMAIL", os.getenv("SENDER_EMAIL", "editor@journal.com"))
+        recipients.add(fallback.strip().lower())
 
     subject = f"New Manuscript Submitted: {title[:50]}..."
     
