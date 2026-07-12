@@ -80,28 +80,60 @@ def assign_reviewer(assignment: AssignReviewerSchema, db: Session = Depends(get_
     frontend_url = os.getenv("FRONTEND_URL", os.getenv("NEXT_PUBLIC_APP_URL", "http://localhost:3000")).rstrip("/")
     portal_url = f"{frontend_url}/reviewer?assignment_id={rev_assignment.id}&submission_id={sub.id}"
     subject = f"Peer Review Invitation: {sub.title[:40]}..."
-    body = f"""Dear Reviewer,
+    
+    text_body = f"""Dear Academic Reviewer,
 
-You have been invited by the Editorial Board of Dovite Journal to peer-review the manuscript titled:
+You have been invited by the Editorial Board of Dovite Journal to conduct a double-blind peer review for the manuscript titled:
 "{sub.title}"
 
 Abstract:
-{sub.abstract[:300]}...
+{sub.abstract[:350]}...
 
 Please access the Double-Blind Evaluation Portal directly using your confidential review link:
 {portal_url}
 
-Your Secure Credentials:
+Your Secure Access Credentials:
 - Assignment ID: {rev_assignment.id}
 - Submission ID: {sub.id}
 
 Best regards,
-Dovite Journal Editorial Office
-"""
+Dovite Journal Editorial Office"""
+
+    html_body = f"""<div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background-color: #ffffff;">
+    <div style="background-color: #0f172a; color: #ffffff; padding: 24px; text-align: center;">
+        <h2 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em;">Dovite Journal</h2>
+        <p style="margin: 6px 0 0; font-size: 14px; color: #94a3b8; font-weight: 500;">Double-Blind Peer Review Invitation</p>
+    </div>
+    <div style="padding: 28px; color: #334155; line-height: 1.6;">
+        <p style="font-size: 16px; margin-top: 0;">Dear Academic Reviewer,</p>
+        <p style="margin-bottom: 20px;">You have been selected by the Editorial Board to evaluate the following submitted manuscript based on your area of expertise:</p>
+        
+        <div style="background-color: #f8fafc; padding: 18px; border-radius: 8px; border-left: 4px solid #3b82f6; margin: 24px 0;">
+            <h3 style="margin: 0 0 10px; font-size: 17px; color: #0f172a; line-height: 1.4;">{sub.title}</h3>
+            <p style="margin: 0; font-size: 14px; color: #64748b; font-style: italic;"><strong>Abstract Snippet:</strong> {sub.abstract[:350]}...</p>
+        </div>
+
+        <div style="background-color: #f1f5f9; padding: 16px; border-radius: 6px; margin: 24px 0; font-size: 14px;">
+            <p style="margin: 0 0 6px; font-weight: bold; color: #0f172a;">Confidential Access Credentials:</p>
+            <p style="margin: 0 0 4px;"><strong>Assignment ID:</strong> <code style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #0f172a;">{rev_assignment.id}</code></p>
+            <p style="margin: 0;"><strong>Submission ID:</strong> <code style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #0f172a;">{sub.id}</code></p>
+        </div>
+
+        <div style="text-align: center; margin: 32px 0;">
+            <a href="{portal_url}" style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">Evaluate Manuscript in Portal</a>
+        </div>
+        
+        <p style="font-size: 13px; color: #64748b; margin-top: 24px;">Note: This invitation link contains secure tokens specifically tied to your evaluation. Please do not forward this email to ensure the double-blind review process remains compromised-free.</p>
+    </div>
+    <div style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px; text-align: center; font-size: 12px; color: #94a3b8;">
+        &copy; Dovite Journal Editorial Office &bull; Secure Academic Peer Review System
+    </div>
+</div>"""
+
     email_sent = True
     email_error = None
     try:
-        _send_email(assignment.reviewer_email, subject, body, body)
+        _send_email(assignment.reviewer_email, subject, html_body, text_body)
     except Exception as email_err:
         email_sent = False
         email_error = str(email_err)
