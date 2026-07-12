@@ -39,6 +39,7 @@ def _send_email(recipient: str, subject: str, html_body: str, text_body: str):
         _log_to_file_and_console(recipient, subject, text_body)
         return
 
+    brevo_key = os.getenv("BREVO_API_KEY")
     resend_key = os.getenv("RESEND_API_KEY")
     sendgrid_key = os.getenv("SENDGRID_API_KEY")
     smtp_server = os.getenv("SMTP_SERVER")
@@ -47,7 +48,60 @@ def _send_email(recipient: str, subject: str, html_body: str, text_body: str):
     smtp_pass = os.getenv("SMTP_PASSWORD")
     sender_email = os.getenv("SENDER_EMAIL", os.getenv("SMTP_USERNAME", "noreply@dovitejournal.org"))
 
-    # 1. Try Resend API if key is present
+    # 1. Try Brevo API (Formerly Sendinblue - 300 FREE emails/day to ANY recipient without domain verification)
+    if brevo_key:
+        try:
+            url = "https://api.brevo.com/v3/smtp/email"
+            payload = json.dumps({
+                "sender": {"email": sender_email, "name": "Dovite Journal"},
+                "to": [{"email": recipient}],
+                "subject": subject,
+                "htmlContent": html_body,
+                "textContent": text_body
+            }).encode('utf-8')
+            req = urllib.request.Request(url, data=payload, headers={
+                "api-key": brevo_key,
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+            with urllib.request.urlopen(req) as response:
+                if response.status in [200, 201, 202]:
+                    print(f"Successfully sent email via Brevo API (HTTPS Port 443) to {recipient}")
+                    return
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode('utf-8', errors='ignore')
+            print(f"Brevo API HTTPError {e.code}: {error_body}. Falling back to next provider...")
+        except Exception as e:
+            print(f"Brevo API error: {e}. Falling back to next provider...")
+
+    # 2. Try SendGrid API (100 FREE emails/day forever via HTTPS Port 443)
+    if sendgrid_key:
+        try:
+            url = "https://api.sendgrid.com/v3/mail/send"
+            payload = json.dumps({
+                "personalizations": [{"to": [{"email": recipient}]}],
+                "from": {"email": sender_email, "name": "Dovite Journal"},
+                "subject": subject,
+                "content": [
+                    {"type": "text/plain", "value": text_body},
+                    {"type": "text/html", "value": html_body}
+                ]
+            }).encode('utf-8')
+            req = urllib.request.Request(url, data=payload, headers={
+                "Authorization": f"Bearer {sendgrid_key}",
+                "Content-Type": "application/json"
+            })
+            with urllib.request.urlopen(req) as response:
+                if response.status in [200, 201, 202]:
+                    print(f"Successfully sent email via SendGrid API (HTTPS Port 443) to {recipient}")
+                    return
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode('utf-8', errors='ignore')
+            print(f"SendGrid API HTTPError {e.code}: {error_body}. Falling back to next provider...")
+        except Exception as e:
+            print(f"SendGrid API error: {e}. Falling back to next provider...")
+
+    # 3. Try Resend API if key is present
     if resend_key:
         try:
             url = "https://api.resend.com/emails"
@@ -66,7 +120,7 @@ def _send_email(recipient: str, subject: str, html_body: str, text_body: str):
             })
             with urllib.request.urlopen(req) as response:
                 if response.status in [200, 201, 202]:
-                    print(f"Successfully sent email via Resend API to {recipient}")
+                    print(f"Successfully sent email via Resend API (HTTPS Port 443) to {recipient}")
                     return
         except urllib.error.HTTPError as e:
             error_body = e.read().decode('utf-8', errors='ignore')
@@ -91,7 +145,7 @@ def _send_email(recipient: str, subject: str, html_body: str, text_body: str):
                     server = smtplib.SMTP_SSL(smtp_server, 465, timeout=6)
                 else:
                     server = smtplib.SMTP(smtp_server, port_num, timeout=6)
-                    if port_num in [587, 25]:
+                    if port_num in [587, 25, 2525]:
                         server.starttls()
                 server.login(smtp_user, smtp_pass)
                 server.send_message(msg)
@@ -114,7 +168,7 @@ def _send_email(recipient: str, subject: str, html_body: str, text_body: str):
                     print(f"Successfully sent SMTP email to {recipient} on failover port {failover_port}")
                     return
                 except Exception as failover_err:
-                    error_msg = f"SMTP ports 465 & 587 blocked by network ({type(failover_err).__name__}). Add RESEND_API_KEY (Port 443 HTTPS) to bypass ISP/hosting SMTP blocks."
+                    error_msg = f"Direct SMTP ports blocked by hosting/network ({type(failover_err).__name__}). Add BREVO_API_KEY (300 free/day to ANY recipient) or SENDGRID_API_KEY over HTTPS Port 443 to bypass SMTP blocks."
                     print(error_msg)
                     raise TimeoutError(error_msg) from failover_err
         except Exception as e:
