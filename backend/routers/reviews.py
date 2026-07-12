@@ -1,3 +1,4 @@
+import os
 import json
 import uuid
 from datetime import datetime
@@ -76,7 +77,7 @@ def assign_reviewer(assignment: AssignReviewerSchema, db: Session = Depends(get_
     db.refresh(rev_assignment)
     
     # Send email invitation to reviewer
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000").rstrip("/")
+    frontend_url = os.getenv("FRONTEND_URL", os.getenv("NEXT_PUBLIC_APP_URL", "http://localhost:3000")).rstrip("/")
     portal_url = f"{frontend_url}/reviewer?assignment_id={rev_assignment.id}&submission_id={sub.id}"
     subject = f"Peer Review Invitation: {sub.title[:40]}..."
     body = f"""Dear Reviewer,
@@ -97,9 +98,16 @@ Your Secure Credentials:
 Best regards,
 Dovite Journal Editorial Office
 """
-    _send_email(assignment.reviewer_email, subject, body, body)
+    email_sent = True
+    email_error = None
+    try:
+        _send_email(assignment.reviewer_email, subject, body, body)
+    except Exception as email_err:
+        email_sent = False
+        email_error = str(email_err)
+        print(f"Warning: Review assignment {rev_assignment.id} created, but email dispatch failed: {email_error}")
     
-    return {"status": "assigned", "assignment_id": rev_assignment.id}
+    return {"status": "assigned", "assignment_id": rev_assignment.id, "email_sent": email_sent, "email_error": email_error}
 
 @router.get("/submission/{submission_id}")
 def get_submission_reviews(submission_id: str, db: Session = Depends(get_db)):

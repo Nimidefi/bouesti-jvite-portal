@@ -277,18 +277,24 @@ function SubmissionRow({
         })
       });
       if (res.ok) {
-        alert('✅ Reviewer invited! Automated email dispatched via Gmail SMTP.');
+        const data = await res.json();
+        if (data.email_sent === false) {
+          alert(`✅ Reviewer successfully assigned (${data.assignment_id})!\n\n⚠️ Note: The email invitation could not be sent directly due to network/API restrictions (${data.email_error || 'timeout'}). The assignment is saved and active in your dashboard.`);
+        } else {
+          alert('✅ Reviewer invited! Automated email dispatched.');
+        }
         setReviewerEmail('');
         loadReviews();
         if (sub.status === 'submitted') {
           handleUpdateStatus(sub.id, 'under-review');
         }
       } else {
-        alert('Failed to assign reviewer');
+        const errData = await res.json().catch(() => ({}));
+        alert(`Failed to assign reviewer: ${errData.detail || 'Server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert('Error assigning reviewer');
+      alert('Error assigning reviewer: Network connection failed. Check console.');
     } finally {
       setAssigning(false);
     }
