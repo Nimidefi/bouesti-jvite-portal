@@ -88,9 +88,9 @@ def _send_email(recipient: str, subject: str, html_body: str, text_body: str):
             port_num = int(smtp_port) if smtp_port.isdigit() else 587
             try:
                 if port_num == 465:
-                    server = smtplib.SMTP_SSL(smtp_server, 465, timeout=15)
+                    server = smtplib.SMTP_SSL(smtp_server, 465, timeout=6)
                 else:
-                    server = smtplib.SMTP(smtp_server, port_num, timeout=15)
+                    server = smtplib.SMTP(smtp_server, port_num, timeout=6)
                     if port_num in [587, 25]:
                         server.starttls()
                 server.login(smtp_user, smtp_pass)
@@ -99,16 +99,24 @@ def _send_email(recipient: str, subject: str, html_body: str, text_body: str):
                 print(f"Successfully sent SMTP email to {recipient} on port {port_num}")
                 return
             except (TimeoutError, smtplib.SMTPConnectError, OSError) as port_err:
-                # If Port 587 timed out or blocked by ISP/router, automatically failover to Port 465 SSL
-                if port_num != 465 and "gmail.com" in smtp_server.lower():
-                    print(f"Port {port_num} timed out ({port_err}). Retrying via SSL Port 465...")
-                    server = smtplib.SMTP_SSL(smtp_server, 465, timeout=15)
+                # Automatic failover between Port 465 and Port 587 if blocked by ISP/router
+                failover_port = 587 if port_num == 465 else 465
+                print(f"Port {port_num} timed out ({port_err}). Failing over to Port {failover_port}...")
+                try:
+                    if failover_port == 465:
+                        server = smtplib.SMTP_SSL(smtp_server, 465, timeout=6)
+                    else:
+                        server = smtplib.SMTP(smtp_server, 587, timeout=6)
+                        server.starttls()
                     server.login(smtp_user, smtp_pass)
                     server.send_message(msg)
                     server.quit()
-                    print(f"Successfully sent SMTP email to {recipient} on failover port 465")
+                    print(f"Successfully sent SMTP email to {recipient} on failover port {failover_port}")
                     return
-                raise port_err
+                except Exception as failover_err:
+                    error_msg = f"SMTP ports 465 & 587 blocked by network ({type(failover_err).__name__}). Add RESEND_API_KEY (Port 443 HTTPS) to bypass ISP/hosting SMTP blocks."
+                    print(error_msg)
+                    raise TimeoutError(error_msg) from failover_err
         except Exception as e:
             error_msg = f"SMTP email error for {recipient}: {type(e).__name__} - {e}"
             print(error_msg)
