@@ -77,7 +77,12 @@ def assign_reviewer(assignment: AssignReviewerSchema, db: Session = Depends(get_
     db.refresh(rev_assignment)
     
     # Send email invitation to reviewer
-    frontend_url = os.getenv("FRONTEND_URL", os.getenv("NEXT_PUBLIC_APP_URL", "http://localhost:3000")).rstrip("/")
+    frontend_url = os.getenv("FRONTEND_URL", os.getenv("NEXT_PUBLIC_APP_URL", "https://bouesti-jvite-portal.vercel.app")).rstrip("/")
+    if "your-app-name" in frontend_url or "localhost" in frontend_url or not frontend_url.startswith("http"):
+        # Auto-correct placeholder or localhost URL when running on server or if FRONTEND_URL has a placeholder
+        if "your-app-name" in frontend_url or os.getenv("RENDER") or os.getenv("ENVIRONMENT") == "production":
+            frontend_url = "https://bouesti-jvite-portal.vercel.app"
+            
     portal_url = f"{frontend_url}/reviewer?assignment_id={rev_assignment.id}&submission_id={sub.id}"
     subject = f"Peer Review Invitation: {sub.title[:40]}..."
     
