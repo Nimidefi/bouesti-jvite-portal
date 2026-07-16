@@ -58,3 +58,35 @@ async def upload_file(file: UploadFile = File(...)):
         size=size,
         url=f"/uploads/{safe_filename}"
     )
+
+from fastapi.responses import FileResponse
+
+@router.get("/download/{filename}")
+async def download_file(filename: str):
+    """Securely serve manuscript files as explicit attachments to force browser download for editors and reviewers."""
+    safe_name = os.path.basename(filename)
+    file_path = os.path.join(UPLOAD_DIR, safe_name)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found on server")
+    
+    # Strip the 8-char hex prefix (`{uuid}_filename.pdf`) if present to download cleanly
+    clean_name = safe_name
+    parts = safe_name.split("_", 1)
+    if len(parts) == 2 and len(parts[0]) == 8 and all(c in "0123456789abcdefABCDEF" for c in parts[0]):
+        clean_name = parts[1]
+        
+    ext = os.path.splitext(clean_name)[1].lower()
+    if ext == ".pdf":
+        media_type = "application/pdf"
+    elif ext in [".doc", ".docx"]:
+        media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document" if ext == ".docx" else "application/msword"
+    else:
+        media_type = "application/octet-stream"
+
+    return FileResponse(
+        path=file_path,
+        filename=clean_name,
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{clean_name}"'}
+    )
+

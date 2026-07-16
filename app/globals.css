@@ -497,3 +497,124 @@ th { background: var(--color-surface-alt); color: var(--color-primary-dark); fon
 .receipt .total { font-size: 1.4rem; color: var(--color-success); font-weight: bold; }
 .kv { display: grid; grid-template-columns: 160px 1fr; gap: 0.5rem 1rem; font-size: 0.95rem; }
 .kv .k { color: var(--color-text-muted); }
+
+/* Comprehensive Mobile Optimization & Responsive Enhancements */
+@media (max-width: 900px) {
+  .page { grid-template-columns: 1fr; gap: 1.25rem; }
+  .side-col { margin-top: 1rem; }
+}
+
+@media (max-width: 768px) {
+  .site-header .inner {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+  .brand {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.6rem;
+  }
+  .brand-text h1 { font-size: 1.05rem; }
+  .header-actions { margin-left: 0; justify-content: center; width: 100%; }
+  
+  .main-nav .inner {
+    justify-content: center;
+    padding: 0;
+  }
+  .main-nav a {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.88rem;
+    flex: 1 1 auto;
+    text-align: center;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  
+  .site-footer .inner {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 1.5rem;
+  }
+  
+  /* Table touch scrolling & compactness on tablet/mobile */
+  table { font-size: 0.84rem; }
+  th, td { padding: 0.55rem 0.45rem; }
+}
+
+@media (max-width: 600px) {
+  html, body { font-size: 15px; }
+  
+  .utility-bar .inner {
+    flex-direction: column;
+    text-align: center;
+    padding: 6px 0.75rem;
+    gap: 0.35rem;
+  }
+  
+  .page {
+    padding: 1rem 0.75rem 2.5rem;
+    gap: 1rem;
+  }
+  
+  .card, .widget, .receipt, .callout {
+    padding: 1rem 1.1rem;
+    border-radius: 8px;
+  }
+  
+  .hero {
+    padding: 1.5rem 1.25rem;
+  }
+  .hero h1 { font-size: 1.5rem; }
+  .hero p { font-size: 0.95rem; }
+  .hero .hero-actions { flex-direction: column; width: 100%; }
+  .hero .hero-actions .btn { width: 100%; justify-content: center; }
+  
+  /* Stack key-value pairs cleanly on small screens */
+  .kv {
+    grid-template-columns: 1fr;
+    gap: 0.2rem 0;
+  }
+  .kv .k {
+    font-weight: 600;
+    color: var(--color-primary-dark);
+    margin-top: 0.6rem;
+  }
+  .kv div {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+  
+  /* Stack forms and stripe elements */
+  .form-grid, .stripe-row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  /* Issue card alignment on mobile */
+  .issue-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .issue-cover { width: 100%; max-width: 120px; height: auto; padding: 0.75rem; }
+  
+  /* Prevent word/URL overflow on mobile screens across all containers */
+  code, p, span, h1, h2, h3, h4, a {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+  
+  .btn {
+    font-size: 0.88rem;
+    padding: 0.5rem 0.9rem;
+  }
+  
+  /* Steps indicator on mobile */
+  .steps { flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+  .steps::before { display: none; }
+  .step { display: flex; align-items: center; gap: 0.6rem; text-align: left; }
+  .step .dot { margin: 0; width: 30px; height: 30px; font-size: 0.85rem; flex-shrink: 0; }
+}
+

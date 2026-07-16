@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/useAuth';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import type { Submission } from '@/lib/data';
 import { API_URL } from '@/lib/config';
 
@@ -91,6 +92,78 @@ export default function EditorDashboard() {
 
   return (
     <div className="page" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '1000px', margin: '2rem auto', padding: '0 1rem', width: '100%' }}>
+      {/* Editorial Navigation Banner */}
+      <div style={{
+        width: '100%',
+        maxWidth: '1000px',
+        margin: '0 auto 1.5rem auto',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '0.75rem',
+        background: '#ffffff',
+        padding: '0.85rem 1.25rem',
+        borderRadius: '10px',
+        boxShadow: '0 4px 12px rgba(30, 58, 95, 0.05)',
+        border: '1px solid var(--color-border)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <Link
+            href="/dashboard"
+            className="btn btn-primary"
+            style={{
+              padding: '0.45rem 0.9rem',
+              fontSize: '0.85rem',
+              fontWeight: '600',
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              background: 'var(--color-primary-dark)',
+              color: '#ffffff',
+              borderRadius: '6px'
+            }}
+          >
+            ← Back to Journal Dashboard
+          </Link>
+          <Link
+            href="/"
+            className="btn btn-ghost"
+            style={{
+              padding: '0.45rem 0.8rem',
+              fontSize: '0.85rem',
+              color: 'var(--color-text)',
+              textDecoration: 'none',
+              border: '1px solid var(--color-border)',
+              borderRadius: '6px'
+            }}
+          >
+            🏠 Journal Home
+          </Link>
+          <Link
+            href="/issues"
+            className="btn btn-ghost"
+            style={{
+              padding: '0.45rem 0.8rem',
+              fontSize: '0.85rem',
+              color: 'var(--color-text)',
+              textDecoration: 'none',
+              border: '1px solid var(--color-border)',
+              borderRadius: '6px'
+            }}
+          >
+            📚 Browse Issues
+          </Link>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--color-success)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', display: 'inline-block' }}></span>
+            Editorial Session Active
+          </span>
+        </div>
+      </div>
+
       <div style={{ textAlign: 'center', marginBottom: '2.5rem', width: '100%' }}>
         <div style={{
           display: 'inline-flex',
@@ -184,9 +257,26 @@ export default function EditorDashboard() {
           flexWrap: 'wrap',
           gap: '1rem'
         }}>
-          <span className="muted" style={{ fontSize: '0.85rem' }}>
-            Logged in as Editorial Board Member
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <span className="muted" style={{ fontSize: '0.85rem' }}>
+              Logged in as Editorial Board Member
+            </span>
+            <Link
+              href="/dashboard"
+              className="btn btn-ghost"
+              style={{
+                padding: '0.5rem 1rem',
+                fontSize: '0.85rem',
+                color: 'var(--color-primary-dark)',
+                border: '1px solid var(--color-primary-dark)',
+                borderRadius: '6px',
+                textDecoration: 'none',
+                fontWeight: '600'
+              }}
+            >
+              ← Return to Journal Dashboard
+            </Link>
+          </div>
           <button 
             onClick={logout} 
             className="btn" 
@@ -337,13 +427,21 @@ function SubmissionRow({
               {expanded ? '▼ Collapse' : '▶ Expand Panel'}
             </button>
             <a 
+              href={`${API_URL}/api/uploads/download/${encodeURIComponent(sub.manuscriptName)}`} 
+              className="btn"
+              style={{ padding: '0.35rem 0.65rem', fontSize: '0.8rem', background: '#059669', color: '#fff', borderRadius: '4px', textDecoration: 'none', fontWeight: '600' }}
+              download
+            >
+              📥 Download File
+            </a>
+            <a 
               href={`${API_URL}/uploads/${encodeURIComponent(sub.manuscriptName)}`} 
               target="_blank" 
               rel="noreferrer"
               className="btn btn-ghost"
-              style={{ padding: '0.35rem 0.65rem', fontSize: '0.8rem', color: 'var(--color-primary)', border: '1px solid var(--color-border)', borderRadius: '4px' }}
+              style={{ padding: '0.35rem 0.65rem', fontSize: '0.8rem', color: 'var(--color-primary)', border: '1px solid var(--color-border)', borderRadius: '4px', textDecoration: 'none' }}
             >
-              📥 File
+              👁️ View
             </a>
             {sub.status !== 'published' && (
               <button 
@@ -395,7 +493,10 @@ function SubmissionRow({
             <div style={{ marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.75rem' }}>
                 <strong style={{ color: 'var(--color-primary-dark)', fontSize: '1rem' }}>📄 Abstract & Scholarly Metadata</strong>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <a href={`${API_URL}/api/uploads/download/${encodeURIComponent(sub.manuscriptName)}`} download style={{ padding: '0.25rem 0.65rem', background: '#059669', color: '#fff', borderRadius: '4px', fontSize: '0.75rem', textDecoration: 'none', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    📥 Download Manuscript File
+                  </a>
                   <a href={`${API_URL}/api/submissions/${sub.id}/jats.xml`} target="_blank" rel="noreferrer" style={{ padding: '0.25rem 0.65rem', background: '#1e3a5f', color: '#fff', borderRadius: '4px', fontSize: '0.75rem', textDecoration: 'none', fontWeight: '600' }}>
                     📥 Export NISO JATS XML
                   </a>

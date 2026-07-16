@@ -226,25 +226,45 @@ export default function ReviewerPortal() {
                 </div>
               </div>
 
-              <a
-                href={`${API_URL}/uploads/${encodeURIComponent(manuscript.manuscriptName)}`}
-                target="_blank"
-                rel="noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  background: '#2563eb',
-                  color: '#ffffff',
-                  padding: '0.65rem 1.25rem',
-                  borderRadius: '6px',
-                  fontWeight: '600',
-                  textDecoration: 'none',
-                  boxShadow: '0 4px 10px rgba(37, 99, 235, 0.2)'
-                }}
-              >
-                📥 Download Blinded Manuscript
-              </a>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <a
+                  href={`${API_URL}/api/uploads/download/${encodeURIComponent(manuscript.manuscriptName)}`}
+                  download
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    background: '#059669',
+                    color: '#ffffff',
+                    padding: '0.65rem 1.25rem',
+                    borderRadius: '6px',
+                    fontWeight: '600',
+                    textDecoration: 'none',
+                    boxShadow: '0 4px 10px rgba(5, 150, 105, 0.2)'
+                  }}
+                >
+                  📥 Download Blinded Manuscript
+                </a>
+                <a
+                  href={`${API_URL}/uploads/${encodeURIComponent(manuscript.manuscriptName)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    background: '#1e3a5f',
+                    color: '#ffffff',
+                    padding: '0.65rem 1.25rem',
+                    borderRadius: '6px',
+                    fontWeight: '600',
+                    textDecoration: 'none',
+                    border: '1px solid #cbd5e1'
+                  }}
+                >
+                  👁️ View Online
+                </a>
+              </div>
             </div>
 
             <div style={{ marginBottom: '1.5rem' }}>
