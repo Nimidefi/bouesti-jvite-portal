@@ -61,13 +61,15 @@ async def upload_file(file: UploadFile = File(...)):
 
 from fastapi.responses import FileResponse
 
-@router.get("/download/{filename}")
+@router.get("/download/{filename:path}")
 async def download_file(filename: str):
     """Securely serve manuscript files as explicit attachments to force browser download for editors and reviewers."""
+    # Clean directory prefixes if passed (e.g. 'uploads/filename.pdf')
+    filename = filename.replace("uploads/", "").replace("uploads\\", "")
     safe_name = os.path.basename(filename)
     file_path = os.path.join(UPLOAD_DIR, safe_name)
     if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="File not found on server")
+        raise HTTPException(status_code=404, detail=f"File '{safe_name}' not found on server")
     
     # Strip the 8-char hex prefix (`{uuid}_filename.pdf`) if present to download cleanly
     clean_name = safe_name
@@ -89,4 +91,10 @@ async def download_file(filename: str):
         media_type=media_type,
         headers={"Content-Disposition": f'attachment; filename="{clean_name}"'}
     )
+
+@router.get("/{filename:path}")
+async def get_file_fallback(filename: str):
+    """Fallback route for direct /api/uploads/{filename} access as attachment."""
+    return await download_file(filename)
+
 

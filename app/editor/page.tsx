@@ -93,22 +93,8 @@ export default function EditorDashboard() {
   return (
     <div className="page" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '1000px', margin: '2rem auto', padding: '0 1rem', width: '100%' }}>
       {/* Editorial Navigation Banner */}
-      <div style={{
-        width: '100%',
-        maxWidth: '1000px',
-        margin: '0 auto 1.5rem auto',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '0.75rem',
-        background: '#ffffff',
-        padding: '0.85rem 1.25rem',
-        borderRadius: '10px',
-        boxShadow: '0 4px 12px rgba(30, 58, 95, 0.05)',
-        border: '1px solid var(--color-border)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+      <div className="editorial-banner">
+        <div className="editorial-banner-links">
           <Link
             href="/dashboard"
             className="btn btn-primary"
@@ -418,7 +404,7 @@ function SubmissionRow({
           </span>
         </td>
         <td style={{ padding: '0.85rem' }}>
-          <div className="flex" style={{ gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div className="flex table-actions" style={{ gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
             <button 
               className="btn"
               style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', background: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', borderRadius: '4px', fontWeight: '600', color: 'var(--color-primary-dark)', cursor: 'pointer' }}
@@ -427,7 +413,7 @@ function SubmissionRow({
               {expanded ? '▼ Collapse' : '▶ Expand Panel'}
             </button>
             <a 
-              href={`${API_URL}/api/uploads/download/${encodeURIComponent(sub.manuscriptName)}`} 
+              href={`/api/uploads/download/${encodeURIComponent(sub.manuscriptName)}`} 
               className="btn"
               style={{ padding: '0.35rem 0.65rem', fontSize: '0.8rem', background: '#059669', color: '#fff', borderRadius: '4px', textDecoration: 'none', fontWeight: '600' }}
               download
@@ -486,7 +472,7 @@ function SubmissionRow({
         </td>
       </tr>
       {expanded && (
-        <tr style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface-alt)' }}>
+        <tr className="expanded-row" style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface-alt)' }}>
           <td colSpan={5} style={{ padding: '1.5rem', borderLeft: '4px solid var(--color-primary)' }}>
             
             {/* Metadata & Abstract Section */}
@@ -494,7 +480,7 @@ function SubmissionRow({
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.75rem' }}>
                 <strong style={{ color: 'var(--color-primary-dark)', fontSize: '1rem' }}>📄 Abstract & Scholarly Metadata</strong>
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <a href={`${API_URL}/api/uploads/download/${encodeURIComponent(sub.manuscriptName)}`} download style={{ padding: '0.25rem 0.65rem', background: '#059669', color: '#fff', borderRadius: '4px', fontSize: '0.75rem', textDecoration: 'none', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <a href={`/api/uploads/download/${encodeURIComponent(sub.manuscriptName)}`} download style={{ padding: '0.25rem 0.65rem', background: '#059669', color: '#fff', borderRadius: '4px', fontSize: '0.75rem', textDecoration: 'none', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                     📥 Download Manuscript File
                   </a>
                   <a href={`${API_URL}/api/submissions/${sub.id}/jats.xml`} target="_blank" rel="noreferrer" style={{ padding: '0.25rem 0.65rem', background: '#1e3a5f', color: '#fff', borderRadius: '4px', fontSize: '0.75rem', textDecoration: 'none', fontWeight: '600' }}>

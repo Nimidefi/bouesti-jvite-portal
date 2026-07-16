@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/lib/useAuth';
 import { useRouter } from 'next/navigation';
 import { journalInfo } from '@/lib/data';
@@ -76,12 +77,49 @@ export default function EditorLogin() {
       style={{
         minHeight: '80vh',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         padding: '2rem 1rem',
         background: 'radial-gradient(circle at 50% 20%, rgba(30, 58, 95, 0.08) 0%, rgba(247, 246, 242, 1) 70%)'
       }}
     >
+      <div className="editorial-banner" style={{ maxWidth: '460px', width: '100%', marginBottom: '1.25rem' }}>
+        <div className="editorial-banner-links" style={{ width: '100%', justifyContent: 'space-between' }}>
+          <Link
+            href="/dashboard"
+            className="btn btn-primary"
+            style={{
+              padding: '0.45rem 0.9rem',
+              fontSize: '0.85rem',
+              fontWeight: '600',
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              background: 'var(--color-primary-dark)',
+              color: '#ffffff',
+              borderRadius: '6px'
+            }}
+          >
+            ← Back to Journal Dashboard
+          </Link>
+          <Link
+            href="/"
+            className="btn btn-ghost"
+            style={{
+              padding: '0.45rem 0.8rem',
+              fontSize: '0.85rem',
+              color: 'var(--color-text)',
+              textDecoration: 'none',
+              border: '1px solid var(--color-border)',
+              borderRadius: '6px'
+            }}
+          >
+            🏠 Journal Home
+          </Link>
+        </div>
+      </div>
       <div
         className="card"
         style={{

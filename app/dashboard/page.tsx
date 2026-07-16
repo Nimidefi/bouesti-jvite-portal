@@ -64,10 +64,10 @@ export default function DashboardPage() {
               <div className="k">Affiliation</div><div>{s.author.affiliation}</div>
               <div className="k">Keywords</div><div>{s.keywords.join(', ')}</div>
               <div className="k">Manuscript</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <div className="table-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
                 <span>📄 {s.manuscriptName} ({(s.manuscriptSize / 1024 / 1024).toFixed(2)} MB)</span>
                 <a 
-                  href={`${API_URL}/api/uploads/download/${encodeURIComponent(s.manuscriptName)}`} 
+                  href={`/api/uploads/download/${encodeURIComponent(s.manuscriptName)}`} 
                   download 
                   style={{ textDecoration: 'none', padding: '0.2rem 0.6rem', borderRadius: '4px', background: '#059669', color: '#fff', fontSize: '0.8rem', fontWeight: '600' }}
                 >

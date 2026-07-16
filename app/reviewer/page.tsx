@@ -226,9 +226,9 @@ export default function ReviewerPortal() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <div className="table-actions" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                 <a
-                  href={`${API_URL}/api/uploads/download/${encodeURIComponent(manuscript.manuscriptName)}`}
+                  href={`/api/uploads/download/${encodeURIComponent(manuscript.manuscriptName)}`}
                   download
                   style={{
                     display: 'inline-flex',
