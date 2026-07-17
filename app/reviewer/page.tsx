@@ -246,7 +246,7 @@ export default function ReviewerPortal() {
                   Download Blinded Manuscript
                 </a>
                 <a
-                  href={`${API_URL}/uploads/${encodeURIComponent(manuscript.manuscriptName)}`}
+                  href={`/api/uploads/view/${encodeURIComponent(manuscript.manuscriptName)}`}
                   target="_blank"
                   rel="noreferrer"
                   style={{

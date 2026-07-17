@@ -10,15 +10,15 @@ export async function GET(
     const rawName = filenameArray[filenameArray.length - 1] || 'document.pdf';
     const cleanRawName = rawName.replace(/^uploads\//, '');
     
-    // Clean UUID prefix if present (`{uuid}_filename.pdf`) for professional attachment name
+    // Clean UUID prefix if present (`{uuid}_filename.pdf`) for professional display name
     let cleanName = cleanRawName;
     const parts = cleanRawName.split('_');
     if (parts.length > 1 && parts[0].length === 8 && /^[0-9a-fA-F]{8}$/.test(parts[0])) {
       cleanName = cleanRawName.substring(parts[0].length + 1);
     }
 
-    // First try the backend API route which has smart resolution and fallback PDF generation
-    const apiUrl = `${API_URL}/api/uploads/download/${encodeURIComponent(cleanRawName)}`;
+    // Try the backend API view endpoint first for smart resolution and fallback PDF generation
+    const apiUrl = `${API_URL}/api/uploads/view/${encodeURIComponent(cleanRawName)}`;
     let res = await fetch(apiUrl, { cache: 'no-store' });
     
     if (!res.ok) {
@@ -32,12 +32,12 @@ export async function GET(
 
     const buffer = await res.arrayBuffer();
     const headers = new Headers();
-    headers.set('Content-Disposition', `attachment; filename="${cleanName}"`);
-    headers.set('Content-Type', res.headers.get('content-type') || 'application/octet-stream');
+    // Use 'inline' so the browser opens PDFs inside the tab rather than forcing download
+    headers.set('Content-Disposition', `inline; filename="${cleanName}"`);
+    headers.set('Content-Type', res.headers.get('content-type') || 'application/pdf');
     return new NextResponse(buffer, { status: 200, headers });
   } catch (error: any) {
-    console.error('Download proxy error:', error);
-    return NextResponse.json({ detail: 'Failed to download file' }, { status: 500 });
+    console.error('View proxy error:', error);
+    return NextResponse.json({ detail: 'Failed to view file' }, { status: 500 });
   }
 }
-

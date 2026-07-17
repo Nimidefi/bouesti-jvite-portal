@@ -421,7 +421,7 @@ function SubmissionRow({
               Download File
             </a>
             <a 
-              href={`${API_URL}/uploads/${encodeURIComponent(sub.manuscriptName)}`} 
+              href={`/api/uploads/view/${encodeURIComponent(sub.manuscriptName)}`} 
               target="_blank" 
               rel="noreferrer"
               className="btn btn-ghost"

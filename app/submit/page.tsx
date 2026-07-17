@@ -137,6 +137,7 @@ export default function SubmitPage() {
   const createSubmission = async () => {
     try {
       setSubmitting(true);
+      let finalManuscriptName = form.manuscriptName;
       if (manuscriptFile) {
         const formData = new FormData();
         formData.append('file', manuscriptFile);
@@ -145,6 +146,14 @@ export default function SubmitPage() {
           body: formData,
         });
         if (!uploadRes.ok) throw new Error('File upload failed');
+        try {
+          const uploadData = await uploadRes.json();
+          if (uploadData && uploadData.filename) {
+            finalManuscriptName = uploadData.filename;
+          }
+        } catch (err) {
+          console.warn('Could not parse upload json response, using form filename');
+        }
       }
 
       const submissionData = {
@@ -162,7 +171,7 @@ export default function SubmitPage() {
           ? form.coAuthorNames.split(',').map((n) => ({ name: n.trim(), email: '', affiliation: '' }))
               .filter((c) => c.name)
           : undefined,
-        manuscriptName: form.manuscriptName,
+        manuscriptName: finalManuscriptName,
         manuscriptSize: form.manuscriptSize,
         submittedAt: new Date().toISOString(),
         status: 'submitted' as const,

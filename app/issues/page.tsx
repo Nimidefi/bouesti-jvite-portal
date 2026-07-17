@@ -47,7 +47,7 @@ export default async function IssuesPage() {
                   {recentArticles.map((a: any) => (
                     <div className="article-item" key={a.id}>
                       <div className="title">
-                        <a href={`${API_URL}/uploads/${encodeURIComponent(a.manuscriptName)}`} target="_blank" rel="noreferrer">
+                        <a href={`/api/uploads/view/${encodeURIComponent(a.manuscriptName)}`} target="_blank" rel="noreferrer">
                           {a.title}
                         </a>
                       </div>
