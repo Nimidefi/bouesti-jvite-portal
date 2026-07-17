@@ -48,33 +48,7 @@ def _send_email(recipient: str, subject: str, html_body: str, text_body: str):
     smtp_pass = os.getenv("SMTP_PASSWORD")
     sender_email = os.getenv("SENDER_EMAIL", os.getenv("SMTP_USERNAME", "noreply@dovitejournal.org"))
 
-    # 1. Try Brevo API (Formerly Sendinblue - 300 FREE emails/day to ANY recipient without domain verification)
-    if brevo_key:
-        try:
-            url = "https://api.brevo.com/v3/smtp/email"
-            payload = json.dumps({
-                "sender": {"email": sender_email, "name": "Dovite Journal"},
-                "to": [{"email": recipient}],
-                "subject": subject,
-                "htmlContent": html_body,
-                "textContent": text_body
-            }).encode('utf-8')
-            req = urllib.request.Request(url, data=payload, headers={
-                "api-key": brevo_key,
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-            with urllib.request.urlopen(req) as response:
-                if response.status in [200, 201, 202]:
-                    print(f"Successfully sent email via Brevo API (HTTPS Port 443) to {recipient}")
-                    return
-        except urllib.error.HTTPError as e:
-            error_body = e.read().decode('utf-8', errors='ignore')
-            print(f"Brevo API HTTPError {e.code}: {error_body}. Falling back to next provider...")
-        except Exception as e:
-            print(f"Brevo API error: {e}. Falling back to next provider...")
-
-    # 2. Try SendGrid API (100 FREE emails/day forever via HTTPS Port 443)
+    # 1. Try SendGrid API (100 FREE emails/day forever via HTTPS Port 443 - works with Single Sender Verification without custom domain!)
     if sendgrid_key:
         try:
             url = "https://api.sendgrid.com/v3/mail/send"
@@ -100,6 +74,32 @@ def _send_email(recipient: str, subject: str, html_body: str, text_body: str):
             print(f"SendGrid API HTTPError {e.code}: {error_body}. Falling back to next provider...")
         except Exception as e:
             print(f"SendGrid API error: {e}. Falling back to next provider...")
+
+    # 2. Try Brevo API (Formerly Sendinblue - 300 FREE emails/day to ANY recipient without domain verification)
+    if brevo_key:
+        try:
+            url = "https://api.brevo.com/v3/smtp/email"
+            payload = json.dumps({
+                "sender": {"email": sender_email, "name": "Dovite Journal"},
+                "to": [{"email": recipient}],
+                "subject": subject,
+                "htmlContent": html_body,
+                "textContent": text_body
+            }).encode('utf-8')
+            req = urllib.request.Request(url, data=payload, headers={
+                "api-key": brevo_key,
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+            with urllib.request.urlopen(req) as response:
+                if response.status in [200, 201, 202]:
+                    print(f"Successfully sent email via Brevo API (HTTPS Port 443) to {recipient}")
+                    return
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode('utf-8', errors='ignore')
+            print(f"Brevo API HTTPError {e.code}: {error_body}. Falling back to next provider...")
+        except Exception as e:
+            print(f"Brevo API error: {e}. Falling back to next provider...")
 
     # 3. Try Resend API if key is present
     if resend_key:
