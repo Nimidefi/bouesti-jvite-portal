@@ -87,7 +87,7 @@ def update_submission(submission_id: str, patch: SubmissionPatch, background_tas
         db.commit()
         db.refresh(submission)
         
-        # Send status update email to author in background
+        # Send status update email to author in background (including editorial comments/feedback)
         try:
             author_data = json.loads(submission.author)
             background_tasks.add_task(
@@ -96,7 +96,8 @@ def update_submission(submission_id: str, patch: SubmissionPatch, background_tas
                 submission.title,
                 author_data.get("name", "Author"),
                 author_data.get("email"),
-                patch.status
+                patch.status,
+                patch.comments
             )
         except Exception as e:
             print(f"Failed to dispatch status update email: {e}")
@@ -112,6 +113,21 @@ def update_submission(submission_id: str, patch: SubmissionPatch, background_tas
                 comments=patch.comments
             )
             db.add(audit_log)
+            
+            # Send editorial feedback/comments email to author in background
+            try:
+                author_data = json.loads(submission.author)
+                background_tasks.add_task(
+                    send_submission_status_update,
+                    submission.id,
+                    submission.title,
+                    author_data.get("name", "Author"),
+                    author_data.get("email"),
+                    submission.status,
+                    patch.comments
+                )
+            except Exception as e:
+                print(f"Failed to dispatch comments update email: {e}")
         db.commit()
         db.refresh(submission)
 

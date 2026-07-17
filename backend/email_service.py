@@ -318,57 +318,93 @@ https://dovitejournal.org
 
 
 def send_submission_status_update(submission_id: str, title: str, author_name: str, author_email: str, new_status: str, feedback: str = None):
-    """Sends status change notification (Under Review, Accepted, Rejected) to the author."""
+    """Sends status change notification (Under Review, Accepted, Rejected, Revisions Required) to the author."""
     status_display = {
-        "under-review": "Under Review",
+        "under-review": "Under Review (Assigned to Peer Reviewers)",
         "accepted": "Accepted for Publication 🎉",
-        "rejected": "Editorial Decision: Rejected",
-        "published": "Published Online 🚀"
-    }.get(new_status, new_status.title())
+        "rejected": "Editorial Decision: Not Accepted (Rejected)",
+        "published": "Published Online 🚀",
+        "revisions-required": "Revisions Required ✍️"
+    }.get(new_status, new_status.replace('-', ' ').title())
 
     status_color = {
         "under-review": "#f59e0b",
         "accepted": "#10b981",
         "rejected": "#ef4444",
-        "published": "#3b82f6"
+        "published": "#3b82f6",
+        "revisions-required": "#8b5cf6"
     }.get(new_status, "#64748b")
 
     subject = f"Manuscript Status Update [{submission_id}]: {status_display}"
 
-    feedback_text = f"\nEditorial Feedback/Comments:\n{feedback}\n" if feedback else ""
-    feedback_html = f'<div style="background-color: #f1f5f9; padding: 14px; border-radius: 6px; margin: 16px 0;"><p style="margin: 0 0 6px; font-weight: bold;">Editorial Comments:</p><p style="margin: 0; font-style: italic;">{feedback}</p></div>' if feedback else ""
+    feedback_text = f"\n=========================================\nEDITORIAL COMMENTS / FEEDBACK:\n=========================================\n{feedback}\n" if feedback else ""
+    feedback_html = f'''<div style="background-color: #fff1f2 if new_status=='rejected' else '#f8fafc'; border: 1px solid {status_color}; padding: 16px; border-radius: 8px; margin: 20px 0;">
+        <p style="margin: 0 0 8px; font-weight: bold; color: {status_color}; font-size: 15px;">Editorial Comments &amp; Reviewer Feedback:</p>
+        <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #334155; white-space: pre-wrap;">{feedback}</p>
+    </div>''' if feedback else ""
+
+    # Generate status-specific guidance text
+    if new_status == "rejected":
+        guidance_text = "Following careful evaluation of your manuscript by the Editorial Board and peer reviewers, we regret to inform you that your manuscript has not been accepted for publication in Dovite Journal at this time.\n\nWe appreciate the effort put into your research. We encourage you to carefully review any editorial feedback provided above. If substantial improvements or new analyses are performed addressing all feedback, you may consider submitting a substantially revised version as a new submission in the future."
+        guidance_html = f'''<div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 16px; border-radius: 6px; margin: 20px 0; color: #7f1d1d; font-size: 14px; line-height: 1.6;">
+            <p style="margin: 0 0 8px; font-weight: bold;">About This Decision:</p>
+            <p style="margin: 0;">Following careful evaluation by our Editorial Board and peer review panel, we regret to inform you that your manuscript has not been accepted for publication in Dovite Journal at this time. We sincerely appreciate your interest in our journal and encourage you to review the editorial comments above for constructive insights.</p>
+        </div>'''
+    elif new_status == "accepted":
+        guidance_text = "Congratulations! Your manuscript has officially passed peer review and has been Accepted for Publication in Dovite Journal.\n\nNext Steps:\n1. Please log in to your author portal or check the publication fee payment link to finalize your processing fee.\n2. Once processed, our production team will format your manuscript into the official journal layout and assign your permanent DOI number prior to online release."
+        guidance_html = f'''<div style="background-color: #ecfdf5; border-left: 4px solid #10b981; padding: 16px; border-radius: 6px; margin: 20px 0; color: #064e3b; font-size: 14px; line-height: 1.6;">
+            <p style="margin: 0 0 8px; font-weight: bold;">Congratulations &amp; Next Steps:</p>
+            <ol style="margin: 0; padding-left: 20px;">
+                <li style="margin-bottom: 6px;"><strong>Publication Processing Fee:</strong> Please complete your publication fee payment to initiate production.</li>
+                <li><strong>Proof &amp; DOI Assignment:</strong> Our production team will format your manuscript and assign your permanent DOI before online publishing.</li>
+            </ol>
+        </div>'''
+    elif new_status == "under-review":
+        guidance_text = "Your manuscript has passed initial screening and is now Under Review with independent field experts. This double-blind evaluation typically takes 2 to 4 weeks. You will be notified automatically as soon as reviewer reports are returned."
+        guidance_html = f'''<div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 6px; margin: 20px 0; color: #78350f; font-size: 14px; line-height: 1.6;">
+            <p style="margin: 0;">Your manuscript is currently undergoing <strong>Double-Blind Peer Review</strong> with independent field experts. This phase typically takes 2 to 4 weeks. We will notify you immediately once reviewer evaluation reports are compiled.</p>
+        </div>'''
+    else:
+        guidance_text = f"The editorial status of your manuscript has been updated to: {status_display}. Please check the portal or contact the editorial office if you have questions."
+        guidance_html = f'''<p style="font-size: 14px; color: #475569; line-height: 1.6;">Your manuscript status has been updated. Please check your author portal or reach out to our editorial staff if you require further details or instructions regarding this transition.</p>'''
 
     text_body = f"""Dear {author_name},
 
-We are writing to inform you of a status update regarding your manuscript submitted to Dovite Journal.
+We are writing to inform you of an official status update regarding your manuscript submitted to Dovite Journal of Vocational & Industrial Technology Education.
 
 Manuscript Title: {title}
 Submission ID: {submission_id}
 New Status: {status_display}
 {feedback_text}
-If your manuscript has been accepted, our publishing team will follow up with publication proofs and any applicable processing details.
+{guidance_text}
+
+If you have questions regarding this editorial decision or status update, please reply directly to this email quoting your Submission ID ({submission_id}).
 
 Best regards,
-Editorial Office
-Dovite Journal
+Dovite Journal Editorial Office
+https://dovitejournal.org
 """
 
     html_body = f"""<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
-    <div style="background-color: #0f172a; color: white; padding: 20px; text-align: center;">
-        <h2 style="margin: 0; font-size: 20px;">Dovite Journal</h2>
-        <p style="margin: 5px 0 0; font-size: 14px; color: #94a3b8;">Manuscript Status Notification</p>
+    <div style="background-color: #0f172a; color: white; padding: 22px; text-align: center;">
+        <h2 style="margin: 0; font-size: 20px; font-weight: 700;">Dovite Journal</h2>
+        <p style="margin: 5px 0 0; font-size: 13px; color: #94a3b8;">Vocational &amp; Industrial Technology Education</p>
     </div>
     <div style="padding: 24px; background-color: #ffffff; color: #334155;">
-        <p style="font-size: 16px;">Dear <strong>{author_name}</strong>,</p>
-        <p>The status of your manuscript has been updated by the editorial board:</p>
+        <p style="font-size: 16px; margin-top: 0;">Dear <strong>{author_name}</strong>,</p>
+        <p>We are writing to inform you of an official status update regarding your manuscript submitted to Dovite Journal:</p>
+        
         <div style="background-color: #f8fafc; padding: 16px; border-radius: 6px; border-left: 4px solid {status_color}; margin: 20px 0;">
-            <p style="margin: 0 0 8px;"><strong>Title:</strong> {title}</p>
-            <p style="margin: 0 0 8px;"><strong>Submission ID:</strong> <code>{submission_id}</code></p>
-            <p style="margin: 0;"><strong>New Status:</strong> <span style="background-color: {status_color}20; color: {status_color}; padding: 4px 10px; border-radius: 4px; font-weight: bold;">{status_display}</span></p>
+            <p style="margin: 0 0 8px; font-size: 14px;"><strong>Manuscript Title:</strong> {title}</p>
+            <p style="margin: 0 0 8px; font-size: 14px;"><strong>Submission ID:</strong> <code style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 13px;">{submission_id}</code></p>
+            <p style="margin: 0; font-size: 14px;"><strong>New Status:</strong> <span style="background-color: {status_color}20; color: {status_color}; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 13px;">{status_display}</span></p>
         </div>
+        
         {feedback_html}
-        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-        <p style="font-size: 12px; color: #64748b;">Dovite Journal Editorial Office &bull; <a href="https://dovitejournal.org" style="color: #2563eb;">dovitejournal.org</a></p>
+        {guidance_html}
+        
+        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0 16px;" />
+        <p style="font-size: 12px; color: #64748b; margin: 0; text-align: center;">Dovite Journal Editorial Office &bull; <a href="https://dovitejournal.org" style="color: #2563eb; text-decoration: none;">dovitejournal.org</a></p>
     </div>
 </div>"""
 
