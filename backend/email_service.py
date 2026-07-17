@@ -258,38 +258,59 @@ def send_author_submission_confirmation(submission_id: str, title: str, author_n
     
     text_body = f"""Dear {author_name},
 
-Thank you for submitting your manuscript to Dovite Journal. We have successfully received your submission.
+Thank you for submitting your manuscript to Dovite Journal of Vocational & Industrial Technology Education. We have successfully received your submission and queued it for editorial assessment.
 
-Submission Details:
-- Title: {title}
+=========================================
+SUBMISSION DETAILS
+=========================================
+- Manuscript Title: {title}
 - Submission ID: {submission_id}
 - Current Status: Submitted (Awaiting Editorial Review)
 
-Our editorial board will review your submission shortly. You will receive an email notification as soon as the status of your manuscript changes or when an editorial decision is made.
+=========================================
+FURTHER INSTRUCTIONS & NEXT STEPS
+=========================================
+1. Editorial Pre-Check (1-3 Days): Our Editorial Board will conduct an initial quality and scope assessment to ensure the manuscript meets journal guidelines.
+2. Double-Blind Peer Review (2-4 Weeks): If accepted for review, your manuscript will be evaluated by at least two independent expert reviewers.
+3. Status Notifications: You will receive an automated email notification via SendGrid every time the status of your manuscript changes (e.g., Under Review, Revisions Required, Accepted, or Rejected).
+4. Publication Processing Fee: If your manuscript is officially Accepted for Publication after peer review, you will be directed to complete the publication fee payment online to initiate final formatting and DOI assignment.
 
-If you have any questions, please reply to this email or contact the editorial office citing your Submission ID ({submission_id}).
+If you need to submit supplementary files, revised drafts, or inquire about your manuscript status, please reply to this email or contact the Editorial Office quoting your unique Submission ID ({submission_id}).
 
 Best regards,
-Editorial Office
-Dovite Journal
+Dovite Journal Editorial Office
+https://dovitejournal.org
 """
 
     html_body = f"""<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
-    <div style="background-color: #0f172a; color: white; padding: 20px; text-align: center;">
-        <h2 style="margin: 0; font-size: 20px;">Dovite Journal</h2>
-        <p style="margin: 5px 0 0; font-size: 14px; color: #94a3b8;">Submission Confirmation</p>
+    <div style="background-color: #0f172a; color: white; padding: 22px; text-align: center;">
+        <h2 style="margin: 0; font-size: 20px; font-weight: 700;">Dovite Journal</h2>
+        <p style="margin: 5px 0 0; font-size: 13px; color: #94a3b8;">Vocational &amp; Industrial Technology Education</p>
     </div>
     <div style="padding: 24px; background-color: #ffffff; color: #334155;">
-        <p style="font-size: 16px;">Dear <strong>{author_name}</strong>,</p>
-        <p>Thank you for submitting your research to Dovite Journal. We have successfully received your manuscript and queued it for editorial assessment.</p>
+        <p style="font-size: 16px; margin-top: 0;">Dear <strong>{author_name}</strong>,</p>
+        <p>Thank you for submitting your research to <strong>Dovite Journal</strong>. We have successfully received your manuscript and queued it for formal editorial assessment.</p>
+        
         <div style="background-color: #f8fafc; padding: 16px; border-radius: 6px; border-left: 4px solid #10b981; margin: 20px 0;">
-            <p style="margin: 0 0 8px;"><strong>Manuscript Title:</strong> {title}</p>
-            <p style="margin: 0 0 8px;"><strong>Submission ID:</strong> <code>{submission_id}</code></p>
-            <p style="margin: 0;"><strong>Current Status:</strong> <span style="background-color: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">Submitted</span></p>
+            <p style="margin: 0 0 8px; font-size: 14px;"><strong>Manuscript Title:</strong> {title}</p>
+            <p style="margin: 0 0 8px; font-size: 14px;"><strong>Submission ID:</strong> <code style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 13px;">{submission_id}</code></p>
+            <p style="margin: 0; font-size: 14px;"><strong>Current Status:</strong> <span style="background-color: #d1fae5; color: #065f46; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">Submitted</span></p>
         </div>
-        <p>You will automatically receive status update notifications via email as your manuscript progresses through review.</p>
-        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-        <p style="font-size: 12px; color: #64748b;">Dovite Journal Editorial Office &bull; <a href="https://dovitejournal.org" style="color: #2563eb;">dovitejournal.org</a></p>
+
+        <h3 style="color: #0f172a; font-size: 16px; margin-top: 24px; margin-bottom: 12px; border-bottom: 2px solid #f1f5f9; padding-bottom: 6px;">Further Instructions &amp; Next Steps</h3>
+        <ol style="margin: 0; padding-left: 20px; line-height: 1.6; font-size: 14px; color: #475569;">
+            <li style="margin-bottom: 8px;"><strong>Editorial Pre-Check (1&ndash;3 Days):</strong> The Editorial Board will perform an initial screening for plagiarism, formatting compliance, and scope relevance.</li>
+            <li style="margin-bottom: 8px;"><strong>Double-Blind Peer Review (2&ndash;4 Weeks):</strong> Once verified, your manuscript will be assigned to at least two independent field experts for rigorous evaluation.</li>
+            <li style="margin-bottom: 8px;"><strong>Automated Status Alerts:</strong> You will automatically receive email notifications whenever your manuscript transitions to a new phase (e.g., <em>Under Review</em>, <em>Accepted</em>, or <em>Revisions Required</em>).</li>
+            <li style="margin-bottom: 8px;"><strong>Publication Processing:</strong> If officially accepted after peer review, you will receive instructions to finalize your publication fee and approve proof copies before your article is assigned a permanent DOI and published online.</li>
+        </ol>
+
+        <div style="background-color: #eff6ff; border: 1px dashed #3b82f6; padding: 14px; border-radius: 6px; margin-top: 24px; font-size: 13px; color: #1e3a8a;">
+            <strong>Need Assistance?</strong> If you have questions or need to submit additional materials, please contact the Editorial Office and cite your Submission ID (<strong>{submission_id}</strong>).
+        </div>
+
+        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0 16px;" />
+        <p style="font-size: 12px; color: #64748b; margin: 0; text-align: center;">Dovite Journal Editorial Office &bull; <a href="https://dovitejournal.org" style="color: #2563eb; text-decoration: none;">dovitejournal.org</a></p>
     </div>
 </div>"""
 
