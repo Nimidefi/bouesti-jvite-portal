@@ -100,13 +100,13 @@ export default function GuidelinesPage() {
         <div className="widget">
           <h3>Checklist</h3>
           <ul>
-            <li>✓ Word count appropriate</li>
-            <li>✓ Anonymous manuscript</li>
-            <li>✓ APA 7th references</li>
-            <li>✓ Abstract 150–250 words</li>
-            <li>✓ 4–6 keywords</li>
-            <li>✓ ORCID for all authors</li>
-            <li>✓ Cover letter prepared</li>
+            <li>Word count appropriate</li>
+            <li>Anonymous manuscript</li>
+            <li>APA 7th references</li>
+            <li>Abstract 150–250 words</li>
+            <li>4–6 keywords</li>
+            <li>ORCID for all authors</li>
+            <li>Cover letter prepared</li>
           </ul>
         </div>
         <div className="widget">

@@ -282,7 +282,7 @@ export default function SubmitPage() {
               </div>
               <div className="row" style={{ justifyContent: 'flex-end' }}>
                 <button type="button" className="btn btn-primary" onClick={next}>
-                  Continue →
+                  Continue
                 </button>
               </div>
             </div>
@@ -347,10 +347,10 @@ export default function SubmitPage() {
               <div className="row" style={{ justifyContent: 'space-between' }}>
                 <button type="button" className="btn btn-ghost" onClick={back}
                   style={{ color: 'var(--color-primary)', borderColor: 'var(--color-primary)' }}>
-                  ← Back
+                  Back
                 </button>
                 <button type="button" className="btn btn-primary" onClick={next}>
-                  Continue →
+                  Continue
                 </button>
               </div>
             </div>
@@ -378,13 +378,11 @@ export default function SubmitPage() {
                     accept={ACCEPTED}
                     onChange={(e) => onFileSelected(e.target.files?.[0] || null)}
                   />
-                  <p style={{ fontSize: '1.5rem' }}>📎</p>
-                  <p><strong>Click to upload</strong> or drag and drop</p>
+                  <p>Click to upload or drag and drop</p>
                   <p className="muted">PDF, DOC, or DOCX · Max 25 MB</p>
                 </div>
                 {form.manuscriptName && (
                   <div className="file-info">
-                    <span>📄</span>
                     <span style={{ flex: 1 }}>{form.manuscriptName}</span>
                     <span className="muted">{(form.manuscriptSize / 1024 / 1024).toFixed(2)} MB</span>
                     <button
@@ -446,10 +444,10 @@ export default function SubmitPage() {
               <div className="row" style={{ justifyContent: 'space-between' }}>
                 <button type="button" className="btn btn-ghost" onClick={back}
                   style={{ color: 'var(--color-primary)', borderColor: 'var(--color-primary)' }}>
-                  ← Back
+                  Back
                 </button>
                 <button type="button" className="btn btn-primary" onClick={createSubmission} disabled={submitting}>
-                  {submitting ? 'Submitting...' : 'Submit Manuscript →'}
+                  {submitting ? 'Submitting...' : 'Submit Manuscript'}
                 </button>
               </div>
             </div>
@@ -458,7 +456,7 @@ export default function SubmitPage() {
           {step === 4 && (
             <div>
               <div className="alert alert-success">
-                <strong>✓ Manuscript submitted successfully!</strong>
+                <strong>Manuscript submitted successfully!</strong>
                 <p style={{ marginTop: '0.4rem' }}>
                   Your submission ID is <code>{submissionId}</code>. We have sent a confirmation
                   to your email. To proceed with peer review, please complete the publication fee

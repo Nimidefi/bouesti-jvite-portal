@@ -110,7 +110,7 @@ export default async function IssuesPage() {
 
       <aside className="side-col">
         <div className="widget">
-          <h3>🔍 Search</h3>
+          <h3>Search</h3>
           <div className="form-group">
             <input type="search" placeholder="Search articles..." />
           </div>

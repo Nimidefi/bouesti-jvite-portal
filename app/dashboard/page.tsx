@@ -65,13 +65,13 @@ export default function DashboardPage() {
               <div className="k">Keywords</div><div>{s.keywords.join(', ')}</div>
               <div className="k">Manuscript</div>
               <div className="table-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                <span>📄 {s.manuscriptName} ({(s.manuscriptSize / 1024 / 1024).toFixed(2)} MB)</span>
+                <span>{s.manuscriptName} ({(s.manuscriptSize / 1024 / 1024).toFixed(2)} MB)</span>
                 <a 
                   href={`/api/uploads/download/${encodeURIComponent(s.manuscriptName)}`} 
                   download 
                   style={{ textDecoration: 'none', padding: '0.2rem 0.6rem', borderRadius: '4px', background: '#059669', color: '#fff', fontSize: '0.8rem', fontWeight: '600' }}
                 >
-                  📥 Download File
+                  Download File
                 </a>
               </div>
             </div>
@@ -86,7 +86,7 @@ export default function DashboardPage() {
             {s.status === 'submitted' && (
               <>
                 <div className="alert alert-warning" style={{ marginTop: '1rem' }}>
-                  <strong>⚠️ Payment Required:</strong> Complete the publication fee payment to
+                  <strong>Payment Required:</strong> Complete the publication fee payment to
                   proceed with peer review.
                 </div>
                 {payingId === s.id ? (
@@ -108,7 +108,7 @@ export default function DashboardPage() {
                     className="btn btn-primary"
                     onClick={() => setPayingId(s.id)}
                   >
-                    💳 Pay ${journalInfo.publicationFee} {journalInfo.currency} Publication Fee
+                    Pay ${journalInfo.publicationFee} {journalInfo.currency} Publication Fee
                   </button>
                 )}
               </>
@@ -116,7 +116,7 @@ export default function DashboardPage() {
 
             {s.status === 'accepted' && (
               <div className="alert alert-success" style={{ marginTop: '1rem' }}>
-                <strong>✓ Payment received &amp; submission accepted.</strong> Your manuscript is
+                <strong>Payment received &amp; submission accepted.</strong> Your manuscript is
                 now in the production queue. You will receive a copy-edited proof within 7–10 days.
               </div>
             )}

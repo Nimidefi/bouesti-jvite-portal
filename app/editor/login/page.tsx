@@ -102,7 +102,7 @@ export default function EditorLogin() {
               borderRadius: '6px'
             }}
           >
-            ← Back to Journal Dashboard
+            Back to Journal Dashboard
           </Link>
           <Link
             href="/"
@@ -116,7 +116,7 @@ export default function EditorLogin() {
               borderRadius: '6px'
             }}
           >
-            🏠 Journal Home
+            Journal Home
           </Link>
         </div>
       </div>
@@ -223,12 +223,8 @@ export default function EditorLogin() {
             background: 'rgba(46, 125, 79, 0.1)',
             borderLeft: '4px solid var(--color-success)',
             color: 'var(--color-success)',
-            fontSize: '0.9rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem'
+            fontSize: '0.9rem'
           }}>
-            <span>✓</span>
             <span>{successMsg}</span>
           </div>
         )}
@@ -241,12 +237,8 @@ export default function EditorLogin() {
             background: 'rgba(179, 38, 30, 0.08)',
             borderLeft: '4px solid var(--color-danger)',
             color: 'var(--color-danger)',
-            fontSize: '0.9rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem'
+            fontSize: '0.9rem'
           }}>
-            <span>⚠️</span>
             <span>{error}</span>
           </div>
         )}
@@ -355,7 +347,7 @@ export default function EditorLogin() {
             onMouseOver={(e) => { if (!loading) { e.currentTarget.style.boxShadow = '0 6px 16px rgba(30, 58, 95, 0.3)'; e.currentTarget.style.transform = 'translateY(-1px)'; } }}
             onMouseOut={(e) => { if (!loading) { e.currentTarget.style.boxShadow = '0 4px 12px rgba(30, 58, 95, 0.2)'; e.currentTarget.style.transform = 'translateY(0)'; } }}
           >
-            {loading ? (isLogin ? 'Authenticating...' : 'Registering...') : (isLogin ? 'Sign In to Portal →' : 'Complete Board Registration →')}
+            {loading ? (isLogin ? 'Authenticating...' : 'Registering...') : (isLogin ? 'Sign In to Portal' : 'Complete Board Registration')}
           </button>
         </form>
 

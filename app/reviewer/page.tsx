@@ -158,7 +158,7 @@ export default function ReviewerPortal() {
       {/* Lookup Form Card */}
       <div className="card" style={{ padding: '1.75rem', marginBottom: '2rem', background: '#ffffff', borderRadius: '10px', boxShadow: '0 4px 15px rgba(0,0,0,0.04)', border: '1px solid var(--color-border)' }}>
         <h3 style={{ margin: '0 0 1rem 0', color: 'var(--color-primary-dark)', fontSize: '1.15rem' }}>
-          🔍 Load Anonymized Manuscript
+          Load Anonymized Manuscript
         </h3>
         <form onSubmit={handleLoadManuscript} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
           <div style={{ flex: '1 1 240px' }}>
@@ -195,13 +195,13 @@ export default function ReviewerPortal() {
             disabled={loading || !submissionId.trim() || !assignmentId.trim()}
             style={{ padding: '0.65rem 1.5rem', background: '#1e3a5f', border: 'none', borderRadius: '6px', fontWeight: '600', color: '#fff', cursor: 'pointer' }}
           >
-            {loading ? 'Redacting & Loading...' : '🔒 Open Blinded Workspace'}
+            {loading ? 'Redacting & Loading...' : 'Open Blinded Workspace'}
           </button>
         </form>
 
         {error && (
           <div style={{ marginTop: '1rem', padding: '0.85rem', background: '#fef2f2', color: '#b91c1c', borderRadius: '6px', border: '1px solid #fecaca', fontSize: '0.9rem' }}>
-            ⚠️ {error}
+            {error}
           </div>
         )}
       </div>
@@ -215,7 +215,7 @@ export default function ReviewerPortal() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', borderBottom: '2px solid #f1f5f9', paddingBottom: '1.25rem', marginBottom: '1.5rem' }}>
               <div>
                 <span style={{ fontSize: '0.8rem', fontWeight: '700', color: '#166534', background: '#dcfce7', padding: '0.3rem 0.75rem', borderRadius: '50px', border: '1px solid #bbf7d0', display: 'inline-block', marginBottom: '0.75rem' }}>
-                  🛡️ Double-Blind Verified: PII Completely Removed
+                  Double-Blind Verified: PII Completely Removed
                 </span>
                 <h2 style={{ fontSize: '1.6rem', color: '#0f172a', margin: '0 0 0.4rem 0', fontWeight: '800' }}>
                   {manuscript.title}
@@ -243,7 +243,7 @@ export default function ReviewerPortal() {
                     boxShadow: '0 4px 10px rgba(5, 150, 105, 0.2)'
                   }}
                 >
-                  📥 Download Blinded Manuscript
+                  Download Blinded Manuscript
                 </a>
                 <a
                   href={`${API_URL}/uploads/${encodeURIComponent(manuscript.manuscriptName)}`}
@@ -262,7 +262,7 @@ export default function ReviewerPortal() {
                     border: '1px solid #cbd5e1'
                   }}
                 >
-                  👁️ View Online
+                  View Online
                 </a>
               </div>
             </div>
@@ -289,7 +289,7 @@ export default function ReviewerPortal() {
           {/* Evaluation Scorecard Form */}
           <div className="card" style={{ padding: '2rem', background: '#ffffff', borderRadius: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '2px solid #3b82f6' }}>
             <h3 style={{ margin: '0 0 0.5rem 0', color: '#1e3a5f', fontSize: '1.4rem' }}>
-              📝 Peer Review Evaluation Scorecard
+              Peer Review Evaluation Scorecard
             </h3>
             <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.9rem', color: '#64748b' }}>
               Provide your rigorous assessment below. Your recommendations guide the Editorial Board's final publication decision.
@@ -297,7 +297,6 @@ export default function ReviewerPortal() {
 
             {success ? (
               <div style={{ padding: '2rem', background: '#f0fdf4', border: '2px solid #bbf7d0', borderRadius: '10px', textAlign: 'center' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🎉</div>
                 <h3 style={{ color: '#166534', margin: '0 0 0.5rem 0', fontSize: '1.5rem' }}>
                   Peer Evaluation Successfully Submitted!
                 </h3>
@@ -321,10 +320,10 @@ export default function ReviewerPortal() {
                   </label>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
                     {[
-                      { val: 'Accept', title: '✓ Accept Submission', desc: 'Publish with no further changes.', border: '#22c55e', bg: '#f0fdf4' },
-                      { val: 'Minor Revisions', title: '✍️ Minor Revisions', desc: 'Accept upon minor formatting/clarifications.', border: '#3b82f6', bg: '#eff6ff' },
-                      { val: 'Major Revisions', title: '🔄 Major Revisions', desc: 'Require re-submission and re-review.', border: '#f59e0b', bg: '#fffbeb' },
-                      { val: 'Reject', title: '✗ Reject Submission', desc: 'Does not meet technical standards.', border: '#ef4444', bg: '#fef2f2' },
+                      { val: 'Accept', title: 'Accept Submission', desc: 'Publish with no further changes.', border: '#22c55e', bg: '#f0fdf4' },
+                      { val: 'Minor Revisions', title: 'Minor Revisions', desc: 'Accept upon minor formatting/clarifications.', border: '#3b82f6', bg: '#eff6ff' },
+                      { val: 'Major Revisions', title: 'Major Revisions', desc: 'Require re-submission and re-review.', border: '#f59e0b', bg: '#fffbeb' },
+                      { val: 'Reject', title: 'Reject Submission', desc: 'Does not meet technical standards.', border: '#ef4444', bg: '#fef2f2' },
                     ].map(opt => (
                       <label
                         key={opt.val}
@@ -412,7 +411,7 @@ export default function ReviewerPortal() {
                       transition: 'transform 0.15s ease'
                     }}
                   >
-                    {submitting ? 'Submitting Evaluation...' : '✉️ Submit Peer Review Evaluation'}
+                    {submitting ? 'Submitting Evaluation...' : 'Submit Peer Review Evaluation'}
                   </button>
                 </div>
 

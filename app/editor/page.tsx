@@ -111,7 +111,7 @@ export default function EditorDashboard() {
               borderRadius: '6px'
             }}
           >
-            ← Back to Journal Dashboard
+            Back to Journal Dashboard
           </Link>
           <Link
             href="/"
@@ -125,7 +125,7 @@ export default function EditorDashboard() {
               borderRadius: '6px'
             }}
           >
-            🏠 Journal Home
+            Journal Home
           </Link>
           <Link
             href="/issues"
@@ -139,7 +139,7 @@ export default function EditorDashboard() {
               borderRadius: '6px'
             }}
           >
-            📚 Browse Issues
+            Browse Issues
           </Link>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -355,9 +355,9 @@ function SubmissionRow({
       if (res.ok) {
         const data = await res.json();
         if (data.email_sent === false) {
-          alert(`✅ Reviewer successfully assigned (${data.assignment_id})!\n\n⚠️ Note: The email invitation could not be sent directly due to network/API restrictions (${data.email_error || 'timeout'}). The assignment is saved and active in your dashboard.`);
+          alert(`Reviewer successfully assigned (${data.assignment_id})!\n\nNote: The email invitation could not be sent directly due to network/API restrictions (${data.email_error || 'timeout'}). The assignment is saved and active in your dashboard.`);
         } else {
-          alert('✅ Reviewer invited! Automated email dispatched.');
+          alert('Reviewer invited! Automated email dispatched.');
         }
         setReviewerEmail('');
         loadReviews();
@@ -410,7 +410,7 @@ function SubmissionRow({
               style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', background: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', borderRadius: '4px', fontWeight: '600', color: 'var(--color-primary-dark)', cursor: 'pointer' }}
               onClick={() => setExpanded(!expanded)}
             >
-              {expanded ? '▼ Collapse' : '▶ Expand Panel'}
+              {expanded ? 'Collapse' : 'Expand Panel'}
             </button>
             <a 
               href={`/api/uploads/download/${encodeURIComponent(sub.manuscriptName)}`} 
@@ -418,7 +418,7 @@ function SubmissionRow({
               style={{ padding: '0.35rem 0.65rem', fontSize: '0.8rem', background: '#059669', color: '#fff', borderRadius: '4px', textDecoration: 'none', fontWeight: '600' }}
               download
             >
-              📥 Download File
+              Download File
             </a>
             <a 
               href={`${API_URL}/uploads/${encodeURIComponent(sub.manuscriptName)}`} 
@@ -427,7 +427,7 @@ function SubmissionRow({
               className="btn btn-ghost"
               style={{ padding: '0.35rem 0.65rem', fontSize: '0.8rem', color: 'var(--color-primary)', border: '1px solid var(--color-border)', borderRadius: '4px', textDecoration: 'none' }}
             >
-              👁️ View
+              View
             </a>
             {sub.status !== 'published' && (
               <button 
@@ -436,7 +436,7 @@ function SubmissionRow({
                 onClick={() => handleUpdateStatus(sub.id, 'published')}
                 disabled={actionLoading === sub.id}
               >
-                {actionLoading === sub.id ? '...' : '✓ Publish'}
+                {actionLoading === sub.id ? '...' : 'Publish'}
               </button>
             )}
             {sub.status !== 'rejected' && (
@@ -446,7 +446,7 @@ function SubmissionRow({
                 onClick={() => handleUpdateStatus(sub.id, 'rejected')}
                 disabled={actionLoading === sub.id}
               >
-                {actionLoading === sub.id ? '...' : '✗ Reject'}
+                {actionLoading === sub.id ? '...' : 'Reject'}
               </button>
             )}
             {sub.status === 'rejected' && (
@@ -465,7 +465,7 @@ function SubmissionRow({
                 onClick={() => handleDeleteSubmission(sub.id)}
                 disabled={actionLoading === sub.id}
               >
-                {actionLoading === sub.id ? '...' : '🗑️ Delete'}
+                {actionLoading === sub.id ? '...' : 'Delete'}
               </button>
             )}
           </div>
@@ -478,16 +478,16 @@ function SubmissionRow({
             {/* Metadata & Abstract Section */}
             <div style={{ marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                <strong style={{ color: 'var(--color-primary-dark)', fontSize: '1rem' }}>📄 Abstract & Scholarly Metadata</strong>
+                <strong style={{ color: 'var(--color-primary-dark)', fontSize: '1rem' }}>Abstract & Scholarly Metadata</strong>
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   <a href={`/api/uploads/download/${encodeURIComponent(sub.manuscriptName)}`} download style={{ padding: '0.25rem 0.65rem', background: '#059669', color: '#fff', borderRadius: '4px', fontSize: '0.75rem', textDecoration: 'none', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                    📥 Download Manuscript File
+                    Download Manuscript File
                   </a>
                   <a href={`${API_URL}/api/submissions/${sub.id}/jats.xml`} target="_blank" rel="noreferrer" style={{ padding: '0.25rem 0.65rem', background: '#1e3a5f', color: '#fff', borderRadius: '4px', fontSize: '0.75rem', textDecoration: 'none', fontWeight: '600' }}>
-                    📥 Export NISO JATS XML
+                    Export NISO JATS XML
                   </a>
                   <a href={`${API_URL}/api/submissions/${sub.id}/metadata`} target="_blank" rel="noreferrer" style={{ padding: '0.25rem 0.65rem', background: '#2b5282', color: '#fff', borderRadius: '4px', fontSize: '0.75rem', textDecoration: 'none', fontWeight: '600' }}>
-                    🔗 Dublin Core Metadata
+                    Dublin Core Metadata
                   </a>
                 </div>
               </div>
@@ -532,7 +532,7 @@ function SubmissionRow({
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid #eee', paddingBottom: '0.75rem' }}>
                 <div>
                   <h4 style={{ margin: 0, color: '#1e3a5f', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    👥 Peer Review Management & Double-Blind Evaluations
+                    Peer Review Management & Double-Blind Evaluations
                   </h4>
                   <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: '#666' }}>
                     Assign expert reviewers and inspect anonymized double-blind scoring reports.
@@ -555,7 +555,7 @@ function SubmissionRow({
                   disabled={assigning}
                   style={{ padding: '0.5rem 1rem', background: '#1e3a5f', color: '#ffffff', border: 'none', borderRadius: '4px', fontWeight: '600', fontSize: '0.85rem', cursor: assigning ? 'not-allowed' : 'pointer' }}
                 >
-                  {assigning ? 'Inviting...' : '✉️ Invite Reviewer via Gmail SMTP'}
+                  {assigning ? 'Inviting...' : 'Invite Reviewer via Email'}
                 </button>
               </form>
 

@@ -14,8 +14,7 @@ function SuccessContent() {
     <div className="page">
       <div className="main-col">
         <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-          <div style={{ fontSize: '4rem' }}>🎉</div>
-          <h1 style={{ color: 'var(--color-success)' }}>Payment Successful!</h1>
+          <h1 style={{ color: 'var(--color-success)', margin: '0 0 0.5rem 0' }}>Payment Successful!</h1>
           <p style={{ fontSize: '1.1rem' }}>
             Thank you for your submission to {journalInfo.shortName}.
           </p>
@@ -25,7 +24,7 @@ function SuccessContent() {
         </div>
 
         <div className="receipt">
-          <h2 style={{ marginTop: 0, color: 'var(--color-success)' }}>📄 Payment Receipt</h2>
+          <h2 style={{ marginTop: 0, color: 'var(--color-success)' }}>Payment Receipt</h2>
           <div className="kv">
             <div className="k">Submission ID</div><div><code>{id || '—'}</code></div>
             <div className="k">Payment ID</div><div><code>{pi || 'pi_demo_local'}</code></div>
@@ -35,7 +34,7 @@ function SuccessContent() {
             <div>{new Date().toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' })}</div>
             <div className="k">Status</div>
             <div>
-              <span className="badge success">✓ PAID</span>
+              <span className="badge success">PAID</span>
             </div>
           </div>
         </div>
@@ -59,7 +58,7 @@ function SuccessContent() {
 
       <aside className="side-col">
         <div className="widget">
-          <h3>📞 Need Help?</h3>
+          <h3>Need Help?</h3>
           <p className="muted" style={{ fontSize: '0.9rem' }}>
             For questions about your payment or submission, contact our editorial office.
           </p>
@@ -69,7 +68,7 @@ function SuccessContent() {
           </ul>
         </div>
         <div className="widget">
-          <h3>📥 Download</h3>
+          <h3>Download</h3>
           <ul>
             <li><a href="#">Print this receipt</a></li>
             <li><a href="#">Download PDF receipt</a></li>
