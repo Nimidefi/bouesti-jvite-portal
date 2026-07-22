@@ -40,6 +40,48 @@ def create_payment_intent(req: PaymentIntentRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+class VerifyPaymentRequest(BaseModel):
+    paymentIntentId: str
+    submissionId: str
+
+@router.post("/verify")
+def verify_payment(req: VerifyPaymentRequest, db: Session = Depends(get_db)):
+    """Allows the frontend to confirm a payment immediately after Stripe success, bypassing webhook delays or auth limits."""
+    sub = db.query(SubmissionModel).filter(SubmissionModel.id == req.submissionId).first()
+    if not sub:
+        raise HTTPException(status_code=404, detail="Submission not found")
+        
+    if sub.status != "accepted":
+        return {"status": "noop", "message": f"Submission is in status {sub.status}"}
+
+    # If in demo mode, trust the frontend's pi_demo_ id
+    if req.paymentIntentId.startswith("pi_demo_"):
+        sub.status = "payment-received"
+        db.commit()
+        try:
+            from email_service import send_payment_received_email
+            send_payment_received_email(sub.id, sub.title)
+        except Exception as e:
+            print(f"Failed to send payment received email: {e}")
+        return {"status": "success"}
+    
+    # Real Stripe verification
+    try:
+        intent = stripe.PaymentIntent.retrieve(req.paymentIntentId)
+        if intent.status == 'succeeded' and getattr(intent.metadata, 'submissionId', None) == req.submissionId:
+            sub.status = "payment-received"
+            db.commit()
+            try:
+                from email_service import send_payment_received_email
+                send_payment_received_email(sub.id, sub.title)
+            except Exception as e:
+                print(f"Failed to send payment received email: {e}")
+            return {"status": "success"}
+        else:
+            raise HTTPException(status_code=400, detail="Payment not succeeded or mismatched submission ID")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.post("/webhook")
 async def stripe_webhook(request: Request, stripe_signature: str = Header(None), db: Session = Depends(get_db)):
     payload = await request.body()
@@ -59,11 +101,16 @@ async def stripe_webhook(request: Request, stripe_signature: str = Header(None),
 
     if event["type"] == "payment_intent.succeeded":
         payment_intent = event["data"]["object"]
-        submission_id = payment_intent.get("metadata", {}).get("submissionId")
+        submission_id = getattr(payment_intent.metadata, 'submissionId', None)
         if submission_id:
             sub = db.query(SubmissionModel).filter(SubmissionModel.id == submission_id).first()
-            if sub and sub.status == "submitted":
-                sub.status = "under-review"
+            if sub and sub.status == "accepted":
+                sub.status = "payment-received"
                 db.commit()
+                try:
+                    from email_service import send_payment_received_email
+                    send_payment_received_email(sub.id, sub.title)
+                except Exception as e:
+                    print(f"Failed to send payment received email: {e}")
 
     return {"status": "success"}

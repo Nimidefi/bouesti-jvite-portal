@@ -112,6 +112,9 @@ function RealCardForm({
     
     const { error: submitError, paymentIntent } = await stripe.confirmPayment({
       elements,
+      confirmParams: {
+        return_url: window.location.origin + '/dashboard',
+      },
       redirect: 'if_required',
     });
     

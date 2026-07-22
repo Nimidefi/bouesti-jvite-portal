@@ -10,7 +10,7 @@ from models import (
     SubmissionModel, SubmissionCreate, SubmissionResponse, SubmissionPatch, parse_submission,
     EditorModel, SubmissionAuditLogModel, RevisionModel
 )
-from routers.auth import get_current_editor
+from routers.auth import get_current_editor, get_current_author
 from email_service import send_new_submission_email, send_author_submission_confirmation, send_submission_status_update
 from limiter import limiter
 
@@ -46,6 +46,20 @@ def create_submission(request: Request, submission: SubmissionCreate, background
     background_tasks.add_task(send_author_submission_confirmation, sub_id, submission.title, submission.author.name, submission.author.email)
     
     return parse_submission(db_submission)
+
+@router.get("/my", response_model=List[SubmissionResponse])
+def get_my_submissions(db: Session = Depends(get_db), current_author_email: str = Depends(get_current_author)):
+    submissions = db.query(SubmissionModel).all()
+    # Filter by author email in the JSON field
+    my_subs = []
+    for sub in submissions:
+        try:
+            author_data = json.loads(sub.author)
+            if author_data.get("email", "").lower() == current_author_email.lower():
+                my_subs.append(sub)
+        except:
+            continue
+    return [parse_submission(sub) for sub in my_subs]
 
 @router.get("", response_model=List[SubmissionResponse])
 def get_submissions(db: Session = Depends(get_db)):

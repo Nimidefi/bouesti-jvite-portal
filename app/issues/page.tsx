@@ -40,16 +40,21 @@ export default async function IssuesPage() {
           <div className="card" style={{ borderColor: 'var(--color-primary)' }}>
             <h2 className="section-title"> Current Issue (Continuous Publication)</h2>
             <div className="issue-card">
-              <div className="issue-meta" style={{ marginLeft: 0 }}>
-                <h3>Recently Published Articles</h3>
-                <p className="muted">These articles have been peer-reviewed and published immediately.</p>
+              <div className="issue-cover">
+                <div className="vol">Latest</div>
+                <div>Issue</div>
+                <div className="year">{new Date().getFullYear()}</div>
+              </div>
+              <div className="issue-meta">
+                <h3>Recently Published Articles (Continuous)</h3>
+                <p className="muted">These articles have been peer-reviewed and published immediately. · {recentArticles.length} articles</p>
                 <div className="article-list">
                   {recentArticles.map((a: any) => (
                     <div className="article-item" key={a.id}>
                       <div className="title">
-                        <a href={`/api/uploads/view/${encodeURIComponent(a.manuscriptName)}`} target="_blank" rel="noreferrer">
+                        <Link href={`/articles/${a.id}`}>
                           {a.title}
-                        </a>
+                        </Link>
                       </div>
                       <div className="meta">
                         {a.authors} · DOI: {a.doi}
@@ -88,7 +93,7 @@ export default async function IssuesPage() {
                       {i.articles.slice(0, 4).map((a) => (
                         <div className="article-item" key={a.id}>
                           <div className="title">
-                            <a href="#">{a.title}</a>
+                            <Link href={`/articles/${a.id}`}>{a.title}</Link>
                           </div>
                           <div className="meta">
                             {a.authors} · pp. {a.pages} · DOI: {a.doi}

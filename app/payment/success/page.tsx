@@ -16,10 +16,10 @@ function SuccessContent() {
         <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
           <h1 style={{ color: 'var(--color-success)', margin: '0 0 0.5rem 0' }}>Payment Successful!</h1>
           <p style={{ fontSize: '1.1rem' }}>
-            Thank you for your submission to {journalInfo.shortName}.
+            Thank you for paying the publication fee for {journalInfo.shortName}.
           </p>
           <p>
-            A receipt has been emailed to you. Your manuscript will now enter peer review.
+            A receipt has been emailed to you. Your manuscript will now be prepared for publication.
           </p>
         </div>
 

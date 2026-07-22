@@ -5,7 +5,9 @@ import urllib.request
 import urllib.error
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
 from datetime import datetime
+import base64
 from database import SessionLocal
 from models import BoardMemberModel, EditorModel
 
@@ -27,10 +29,21 @@ def _log_to_file_and_console(recipient: str, subject: str, body: str):
     except Exception as e:
         print(f"Could not write to email_logs.log: {e}")
 
-def _send_email(recipient: str, subject: str, html_body: str, text_body: str):
+def _send_email(recipient: str, subject: str, html_body: str, text_body: str, attachment_path: str = None):
     """Core email sending dispatcher handling Resend API, SendGrid API, or direct SMTP."""
     from dotenv import load_dotenv
     load_dotenv(override=True)
+
+    attachment_data = None
+    attachment_name = None
+    if attachment_path and os.path.exists(attachment_path):
+        try:
+            with open(attachment_path, "rb") as af:
+                raw_data = af.read()
+                attachment_data = base64.b64encode(raw_data).decode("utf-8")
+                attachment_name = os.path.basename(attachment_path)
+        except Exception as e:
+            print(f"Warning: Could not read attachment at {attachment_path}: {e}")
 
     # 0. Intercept placeholder/demo domains so Gmail SMTP never attempts delivery and triggers Mailer-Daemon bounces
     clean_recipient = recipient.strip().lower()
@@ -52,7 +65,7 @@ def _send_email(recipient: str, subject: str, html_body: str, text_body: str):
     if sendgrid_key:
         try:
             url = "https://api.sendgrid.com/v3/mail/send"
-            payload = json.dumps({
+            sg_dict = {
                 "personalizations": [{"to": [{"email": recipient}]}],
                 "from": {"email": sender_email, "name": "Dovite Journal"},
                 "subject": subject,
@@ -60,7 +73,10 @@ def _send_email(recipient: str, subject: str, html_body: str, text_body: str):
                     {"type": "text/plain", "value": text_body},
                     {"type": "text/html", "value": html_body}
                 ]
-            }).encode('utf-8')
+            }
+            if attachment_data:
+                sg_dict["attachments"] = [{"content": attachment_data, "filename": attachment_name}]
+            payload = json.dumps(sg_dict).encode('utf-8')
             req = urllib.request.Request(url, data=payload, headers={
                 "Authorization": f"Bearer {sendgrid_key}",
                 "Content-Type": "application/json"
@@ -138,6 +154,15 @@ def _send_email(recipient: str, subject: str, html_body: str, text_body: str):
 
             msg.attach(MIMEText(text_body, 'plain', 'utf-8'))
             msg.attach(MIMEText(html_body, 'html', 'utf-8'))
+            
+            if attachment_path and os.path.exists(attachment_path):
+                try:
+                    with open(attachment_path, "rb") as af:
+                        part = MIMEApplication(af.read(), Name=os.path.basename(attachment_path))
+                    part['Content-Disposition'] = f'attachment; filename="{os.path.basename(attachment_path)}"'
+                    msg.attach(part)
+                except Exception as e:
+                    print(f"Could not attach file to SMTP email: {e}")
 
             port_num = int(smtp_port) if smtp_port.isdigit() else 587
             try:
@@ -249,7 +274,8 @@ Dovite Journal Editorial Board
     
     print(f"Dispatching new submission notification to {len(recipients)} editorial board members: {list(recipients)}")
     for recipient in recipients:
-        _send_email(recipient, subject, html_body, text_body)
+        local_attach_path = os.path.join(os.path.dirname(__file__), file_path.lstrip('/'))
+        _send_email(recipient, subject, html_body, text_body, attachment_path=local_attach_path)
 
 
 def send_author_submission_confirmation(submission_id: str, title: str, author_name: str, author_email: str):
@@ -442,3 +468,60 @@ Dovite Journal Security Team
 </div>"""
 
     _send_email(recipient_email, subject, html_body, text_body)
+
+
+def send_payment_received_email(submission_id: str, title: str):
+    """Notifies the editorial board that an author has paid the publication fee."""
+    recipients = set()
+    default_editor = os.getenv("EDITOR_EMAIL")
+    if default_editor:
+        recipients.add(default_editor.strip().lower())
+        
+    db = SessionLocal()
+    try:
+        editors = db.query(EditorModel).all()
+        for e in editors:
+            if e.email:
+                recipients.add(e.email.strip().lower())
+    except Exception as e:
+        print(f"Could not query editors from database: {e}")
+    finally:
+        db.close()
+
+    if not recipients:
+        fallback = os.getenv("EDITOR_EMAIL", os.getenv("SENDER_EMAIL", "editor@journal.com"))
+        recipients.add(fallback.strip().lower())
+
+    subject = f"Payment Received: {submission_id} is ready for publication"
+    
+    text_body = f"""Hello Editorial Board,
+
+The author of the following accepted manuscript has successfully completed the publication fee payment:
+
+Title: {title}
+Submission ID: {submission_id}
+
+This manuscript is now fully cleared for publication. Please log in to your Editorial Dashboard, verify the final proof, and click 'Publish' to assign the DOI and release it online.
+
+Best regards,
+Dovite Journal Billing System
+"""
+
+    html_body = f"""<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+    <div style="background-color: #10b981; color: white; padding: 20px; text-align: center;">
+        <h2 style="margin: 0; font-size: 20px;">Dovite Journal</h2>
+        <p style="margin: 5px 0 0; font-size: 14px; color: #ecfdf5;">Payment Confirmation</p>
+    </div>
+    <div style="padding: 24px; background-color: #ffffff; color: #334155;">
+        <p style="font-size: 16px;">Hello Editorial Board,</p>
+        <p>The author of the following accepted manuscript has successfully paid the publication fee.</p>
+        <div style="background-color: #f8fafc; padding: 16px; border-radius: 6px; border-left: 4px solid #10b981; margin: 20px 0;">
+            <p style="margin: 0 0 8px;"><strong>Title:</strong> {title}</p>
+            <p style="margin: 0;"><strong>Submission ID:</strong> <code>{submission_id}</code></p>
+        </div>
+        <p>This manuscript is now fully cleared for publication. Please log in to your Editorial Dashboard, verify the final proof, and click <strong>Publish</strong> to release it online.</p>
+    </div>
+</div>"""
+    
+    for recipient in recipients:
+        _send_email(recipient, subject, html_body, text_body)

@@ -396,9 +396,9 @@ function SubmissionRow({
             fontWeight: '700',
             letterSpacing: '0.5px',
             textTransform: 'uppercase',
-            background: sub.status === 'published' ? 'rgba(46, 125, 79, 0.15)' : sub.status === 'rejected' ? 'rgba(179, 38, 30, 0.15)' : 'rgba(201, 164, 73, 0.2)',
-            color: sub.status === 'published' ? '#2e7d4f' : sub.status === 'rejected' ? '#b3261e' : '#8c6d1f',
-            border: `1px solid ${sub.status === 'published' ? 'rgba(46, 125, 79, 0.3)' : sub.status === 'rejected' ? 'rgba(179, 38, 30, 0.3)' : 'rgba(201, 164, 73, 0.4)'}`
+            background: (sub.status === 'published' || sub.status === 'payment-received') ? 'rgba(46, 125, 79, 0.15)' : sub.status === 'rejected' ? 'rgba(179, 38, 30, 0.15)' : 'rgba(201, 164, 73, 0.2)',
+            color: (sub.status === 'published' || sub.status === 'payment-received') ? '#2e7d4f' : sub.status === 'rejected' ? '#b3261e' : '#8c6d1f',
+            border: `1px solid ${(sub.status === 'published' || sub.status === 'payment-received') ? 'rgba(46, 125, 79, 0.3)' : sub.status === 'rejected' ? 'rgba(179, 38, 30, 0.3)' : 'rgba(201, 164, 73, 0.4)'}`
           }}>
             {sub.status}
           </span>
@@ -429,7 +429,7 @@ function SubmissionRow({
             >
               View
             </a>
-            {sub.status !== 'published' && (
+            {sub.status === 'payment-received' && (
               <button 
                 className="btn btn-primary" 
                 style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', borderRadius: '4px', background: 'var(--color-success)', borderColor: 'var(--color-success)' }}
@@ -437,6 +437,16 @@ function SubmissionRow({
                 disabled={actionLoading === sub.id}
               >
                 {actionLoading === sub.id ? '...' : 'Publish'}
+              </button>
+            )}
+            {(sub.status === 'submitted' || sub.status === 'under-review') && (
+              <button 
+                className="btn btn-primary" 
+                style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', borderRadius: '4px', background: '#3b82f6', borderColor: '#3b82f6', color: '#fff' }}
+                onClick={() => handleUpdateStatus(sub.id, 'accepted')}
+                disabled={actionLoading === sub.id}
+              >
+                {actionLoading === sub.id ? '...' : 'Accept'}
               </button>
             )}
             {sub.status !== 'rejected' && (

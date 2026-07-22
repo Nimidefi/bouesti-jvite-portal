@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useSubmissions } from '@/lib/useSubmissions';
 import StripeProvider from '@/components/StripeProvider';
 import PaymentForm from '@/components/PaymentForm';
@@ -12,21 +13,47 @@ function statusBadge(status: Submission['status']) {
   switch (status) {
     case 'submitted': return <span className="badge info">Under Editorial Review</span>;
     case 'under-review': return <span className="badge warning">Peer Review</span>;
-    case 'accepted': return <span className="badge success">Accepted</span>;
+    case 'accepted': return <span className="badge success">Accepted (Payment Required)</span>;
+    case 'payment-received': return <span className="badge success">Payment Received</span>;
     case 'published': return <span className="badge success">Published</span>;
   }
 }
 
 export default function DashboardPage() {
-  const { submissions, loaded, update } = useSubmissions();
+  const { submissions, loaded, update } = useSubmissions({ myOnly: true });
   const [payingId, setPayingId] = useState<string | null>(null);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('author_token');
+    if (!token) {
+      router.push('/dashboard/login');
+    } else {
+      setIsAuthenticated(true);
+    }
+  }, [router]);
+
+  if (!isAuthenticated) return null;
 
   return (
     <div className="page">
       <div className="main-col">
-        <div className="card">
-          <h1 className="section-title"> My Submissions</h1>
-          <p>Track the status of your submissions and complete pending payments.</p>
+        <div className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h1 className="section-title">My Submissions</h1>
+            <p>Track the status of your submissions and complete pending payments.</p>
+          </div>
+          <button 
+            className="btn btn-ghost" 
+            onClick={() => {
+              localStorage.removeItem('author_token');
+              router.push('/dashboard/login');
+            }}
+          >
+            Log Out
+          </button>
         </div>
 
         {!loaded && <div className="card">Loading…</div>}
@@ -83,41 +110,80 @@ export default function DashboardPage() {
               <p style={{ marginTop: '0.5rem' }}>{s.abstract}</p>
             </details>
 
-            {s.status === 'submitted' && (
+            {s.status === 'accepted' && (
               <>
                 <div className="alert alert-warning" style={{ marginTop: '1rem' }}>
                   <strong>Payment Required:</strong> Complete the publication fee payment to
-                  proceed with peer review.
+                  proceed to final publication and DOI assignment.
                 </div>
-                {payingId === s.id ? (
+                {payingId === s.id && clientSecret ? (
                   <div>
-                    <StripeProvider>
+                    <StripeProvider clientSecret={clientSecret}>
                       <PaymentForm
                         amount={journalInfo.publicationFee}
                         description={`Publication fee for "${s.title}"`}
-                        onSuccess={(pi) => {
-                          update(s.id, { status: 'accepted' });
+                        onSuccess={async (pi) => {
+                          try {
+                            const res = await fetch(`${API_URL}/api/payments/verify`, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ paymentIntentId: pi, submissionId: s.id })
+                            });
+                            if (res.ok) {
+                              window.location.reload();
+                            } else {
+                              const errText = await res.text();
+                              console.error("Verification failed:", res.status, errText);
+                              alert(`Payment succeeded in Stripe but failed to verify on the server: ${res.status} ${errText}`);
+                            }
+                          } catch (e) {
+                            console.error(e);
+                          }
                           setPayingId(null);
+                          setClientSecret(null);
                         }}
-                        onBack={() => setPayingId(null)}
+                        onBack={() => {
+                          setPayingId(null);
+                          setClientSecret(null);
+                        }}
                       />
                     </StripeProvider>
                   </div>
                 ) : (
                   <button
                     className="btn btn-primary"
-                    onClick={() => setPayingId(s.id)}
+                    disabled={payingId === s.id}
+                    onClick={async () => {
+                      setPayingId(s.id);
+                      try {
+                        const paymentRes = await fetch(`${API_URL}/api/payments/create-intent`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ amount: journalInfo.publicationFee, submissionId: s.id }),
+                        });
+                        if (paymentRes.ok) {
+                          const paymentData = await paymentRes.json();
+                          setClientSecret(paymentData.clientSecret);
+                        } else {
+                          setPayingId(null);
+                          alert("Failed to create payment intent.");
+                        }
+                      } catch (e) {
+                        console.error(e);
+                        setPayingId(null);
+                      }
+                    }}
                   >
-                    Pay ${journalInfo.publicationFee} {journalInfo.currency} Publication Fee
+                    {payingId === s.id ? 'Loading...' : `Pay $${journalInfo.publicationFee} ${journalInfo.currency} Publication Fee`}
                   </button>
                 )}
               </>
             )}
 
-            {s.status === 'accepted' && (
+            {s.status === 'payment-received' && (
               <div className="alert alert-success" style={{ marginTop: '1rem' }}>
-                <strong>Payment received &amp; submission accepted.</strong> Your manuscript is
-                now in the production queue. You will receive a copy-edited proof within 7–10 days.
+                <strong>Payment received.</strong> Your manuscript is fully cleared for publication.
+                You will be notified once it is live online.
               </div>
             )}
           </div>

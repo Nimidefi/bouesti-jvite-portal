@@ -64,7 +64,7 @@ def login_for_access_token(request: Request, form_data: OAuth2PasswordRequestFor
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": editor.email}, expires_delta=access_token_expires
+        data={"sub": editor.email, "role": "editor"}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -97,7 +97,7 @@ def signup_editor(request: Request, payload: EditorSignupSchema, db: Session = D
     
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": new_editor.email}, expires_delta=access_token_expires
+        data={"sub": new_editor.email, "role": "editor"}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -110,7 +110,8 @@ def get_current_editor(token: str = Depends(oauth2_scheme), db: Session = Depend
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
-        if email is None:
+        role: str = payload.get("role")
+        if email is None or role != "editor":
             raise credentials_exception
     except JWTError:
         raise credentials_exception
@@ -192,3 +193,43 @@ def verify_verification_otp(request: Request, payload: OTPVerify):
         
     ACTIVE_OTPS.pop(email_key, None)
     return {"status": "success", "message": "Email successfully verified."}
+
+@router.post("/author-login", response_model=Token)
+@limiter.limit("10/minute")
+def author_login(request: Request, payload: OTPVerify):
+    email_key = payload.email.lower()
+    if email_key not in ACTIVE_OTPS:
+        raise HTTPException(status_code=400, detail="Invalid verification code or code expired.")
+    
+    stored_otp, expires_at = ACTIVE_OTPS[email_key]
+    if datetime.utcnow() > expires_at:
+        ACTIVE_OTPS.pop(email_key, None)
+        raise HTTPException(status_code=400, detail="Verification code has expired. Please request a new code.")
+        
+    if stored_otp != payload.otp_code.strip():
+        raise HTTPException(status_code=400, detail="Incorrect verification code.")
+        
+    ACTIVE_OTPS.pop(email_key, None)
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": payload.email, "role": "author"}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+def get_current_author(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        role: str = payload.get("role")
+        # Allow editors to also act as authors if needed, or strictly "author"
+        if email is None or role not in ["author", "editor"]:
+            raise credentials_exception
+        return email
+    except JWTError:
+        raise credentials_exception

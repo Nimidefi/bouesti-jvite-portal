@@ -52,12 +52,11 @@ function validateEmail(email: string) {
 
 export default function SubmitPage() {
   const router = useRouter();
-  const { add, update } = useSubmissions();
+  const { add } = useSubmissions();
   const [step, setStep] = useState<Step>(1);
   const [form, setForm] = useState<FormState>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submissionId, setSubmissionId] = useState<string | null>(null);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [manuscriptFile, setManuscriptFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -180,16 +179,6 @@ export default function SubmitPage() {
       const created = await add(submissionData);
       setSubmissionId(created.id);
       
-      const paymentRes = await fetch(`${API_URL}/api/payments/create-intent`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: journalInfo.publicationFee, submissionId: created.id }),
-      });
-      if (paymentRes.ok) {
-        const paymentData = await paymentRes.json();
-        setClientSecret(paymentData.clientSecret);
-      }
-      
       setStep(4);
     } catch (e) {
       console.error(e);
@@ -199,12 +188,6 @@ export default function SubmitPage() {
     }
   };
 
-  const onPaymentSuccess = (paymentIntentId: string) => {
-    if (submissionId) {
-      update(submissionId, { status: 'accepted' });
-    }
-    router.push(`/payment/success?id=${submissionId}&pi=${paymentIntentId}`);
-  };
 
   return (
     <div className="page">
@@ -212,8 +195,8 @@ export default function SubmitPage() {
         <div className="card">
           <h1 className="section-title">Submit Your Manuscript</h1>
           <p>
-            Complete the four steps below to submit your manuscript to {journalInfo.shortName}.
-            You'll have the opportunity to pay the article processing charge after submission.
+            Complete the three steps below to submit your manuscript to {journalInfo.shortName}.
+            You'll have the opportunity to pay the article processing charge after peer-review acceptance.
           </p>
 
           <div className="steps" style={{ marginTop: '1.5rem' }}>
@@ -227,7 +210,7 @@ export default function SubmitPage() {
               <div className="dot">3</div><div className="label">Files &amp; Policies</div>
             </div>
             <div className={`step ${step === 4 ? 'active' : ''}`}>
-              <div className="dot">4</div><div className="label">Payment</div>
+              <div className="dot">4</div><div className="label">Done</div>
             </div>
           </div>
 
@@ -466,22 +449,26 @@ export default function SubmitPage() {
             <div>
               <div className="alert alert-success">
                 <strong>Manuscript submitted successfully!</strong>
-                <p style={{ marginTop: '0.4rem' }}>
+                <p style={{ marginTop: '0.4rem', marginBottom: '1rem' }}>
                   Your submission ID is <code>{submissionId}</code>. We have sent a confirmation
-                  to your email. To proceed with peer review, please complete the publication fee
-                  payment below.
+                  to your email.
+                </p>
+                <p>
+                  Your manuscript is now in the <strong>Under Editorial Review</strong> queue. You will be 
+                  notified via email once peer review is complete. If accepted, you will be prompted to 
+                  pay the publication fee via your dashboard before final publication.
                 </p>
               </div>
 
-              <h2>Step 4 · Pay Publication Fee</h2>
-              <StripeProvider clientSecret={clientSecret}>
-                <PaymentForm
-                  amount={journalInfo.publicationFee}
-                  description={`Publication fee for "${form.title}"`}
-                  onSuccess={onPaymentSuccess}
-                  onBack={() => router.push('/dashboard')}
-                />
-              </StripeProvider>
+              <div className="row" style={{ marginTop: '2rem' }}>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => router.push('/dashboard')}
+                >
+                  Go to Author Dashboard
+                </button>
+              </div>
             </div>
           )}
         </div>
