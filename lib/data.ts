@@ -16,7 +16,7 @@ export interface Submission {
   manuscriptSize: number;
   category: string;
   submittedAt: string;
-  status: 'submitted' | 'under-review' | 'accepted' | 'published' | 'rejected';
+  status: 'submitted' | 'under-review' | 'accepted' | 'payment-received' | 'published' | 'rejected';
   doi?: string;
   version?: number;
 }
