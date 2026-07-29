@@ -12,20 +12,20 @@ export default function HomePage() {
         <section className="hero">
           <h1>About the Journal</h1>
           <p>
-            The Journal of Research in Vocational and Industrial Technology Education is a publication of the department of vocational and industrial technology education,BOEUSTI, serving schools, colleges, polytechnics, universities, and other educational institutions committed to advancing relevant and appropriate education and technology within technical and vocational fields at both school and college levels.
-          </p>  
+            The Journal of Research in Vocational and Technical Education (JVITE) is a publication of the Faculty of Vocational and Industrial Technology Education,BOEUSTI, serving schools, colleges, polytechnics, universities, and other educational institutions committed to advancing relevant and appropriate education and technology within technical and vocational fields at both school and college levels.
+          </p>
           <p>
             The editorial board welcomes and publishes original, scholarly contributions including empirical and scientific research, as well as creative and innovative reviews and reports aimed at promoting the teaching, learning, and advancement of applied science and technology within technical and vocational education.
-          </p> 
-          <p> 
+          </p>
+          <p>
             Each volume of the journal features articles organized under the following four sections:
-          <br />
+            <br />
             1. Technical and Vocational Education <br />
             2. Applied Science and Technology <br />
             3. Entrepreneurship in BVTE <br />
             4. Current Issues in Education <br />
 
-           <br /><strong> Submissions that fall outside these thematic areas or exceed the prescribed page limits will only be considered in rare and exceptional circumstances.</strong>
+            <br /><strong> Submissions that fall outside these thematic areas or exceed the prescribed page limits will only be considered in rare and exceptional circumstances.</strong>
             <br />
             <em>The Nigeria Association of Technical Educators bears no responsibility for the opinions or claims expressed in articles published in the Journal of Research in Vocational and Industrial Technology Education. All views and claims presented are solely those of the respective authors and do not represent the position of the Editorial Board unless explicitly stated otherwise.</em>
           </p>
@@ -41,7 +41,7 @@ export default function HomePage() {
             <strong>Call for Papers — Vol. 8, No. 1 (June 2026)</strong>
             <p style={{ marginTop: '0.4rem' }}>
               JVITE invites original research articles on <em>AI &amp; Automation in Skills
-              Training</em>. Submission deadline: <strong>31 March 2026</strong>.
+                Training</em>. Submission deadline: <strong>31 March 2026</strong>.
             </p>
           </div>
           <div className="alert alert-warning">
