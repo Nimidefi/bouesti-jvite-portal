@@ -7,6 +7,7 @@ import { journalInfo } from '@/lib/data';
 
 interface Props {
   amount: number;
+  currency?: string;
   onSuccess: (paymentIntentId: string) => void;
   onBack: () => void;
   description: string;
@@ -20,9 +21,12 @@ interface Props {
  * demo mode (no key), it shows a simulated card form so reviewers can always
  * walk through the flow.
  */
-export default function PaymentForm({ amount, onSuccess, onBack, description }: Props) {
+export default function PaymentForm({ amount, currency = journalInfo.currency, onSuccess, onBack, description }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const isNgn = currency === 'NGN';
+  const displaySymbol = isNgn ? '₦' : '$';
 
   const simulatePayment = () => {
     setSubmitting(true);
@@ -41,7 +45,7 @@ export default function PaymentForm({ amount, onSuccess, onBack, description }: 
           <div className="k">Journal</div><div>{journalInfo.shortName}</div>
           <div className="k">Fee Type</div><div>Article Processing Charge (APC)</div>
           <div className="k">Amount</div>
-          <div><strong>${amount.toFixed(2)} {journalInfo.currency}</strong></div>
+          <div><strong>{displaySymbol}{amount.toLocaleString()} {currency}</strong></div>
         </div>
       </div>
 
@@ -56,6 +60,8 @@ export default function PaymentForm({ amount, onSuccess, onBack, description }: 
       {isStripeDemo ? (
         <SimulatedCardForm
           amount={amount}
+          currency={currency}
+          displaySymbol={displaySymbol}
           onPay={simulatePayment}
           submitting={submitting}
           error={error}
@@ -63,6 +69,8 @@ export default function PaymentForm({ amount, onSuccess, onBack, description }: 
       ) : (
         <RealCardForm
           amount={amount}
+          currency={currency}
+          displaySymbol={displaySymbol}
           onSuccess={onSuccess}
           submitting={submitting}
           setSubmitting={setSubmitting}
@@ -87,6 +95,8 @@ export default function PaymentForm({ amount, onSuccess, onBack, description }: 
 
 function RealCardForm({ 
   amount, 
+  currency,
+  displaySymbol,
   onSuccess, 
   submitting, 
   setSubmitting, 
@@ -94,6 +104,8 @@ function RealCardForm({
   setError 
 }: { 
   amount: number, 
+  currency: string,
+  displaySymbol: string,
   onSuccess: (id: string) => void, 
   submitting: boolean, 
   setSubmitting: (val: boolean) => void, 
@@ -140,7 +152,7 @@ function RealCardForm({
           disabled={submitting || !stripe || !elements}
           style={{ flex: 1, justifyContent: 'center' }}
         >
-          {submitting ? 'Processing…' : `Pay $${amount.toFixed(2)} ${journalInfo.currency}`}
+          {submitting ? 'Processing…' : `Pay ${displaySymbol}${amount.toLocaleString()} ${currency}`}
         </button>
       </div>
     </form>
@@ -149,11 +161,15 @@ function RealCardForm({
 
 function SimulatedCardForm({
   amount,
+  currency,
+  displaySymbol,
   onPay,
   submitting,
   error,
 }: {
   amount: number;
+  currency: string;
+  displaySymbol: string;
   onPay: () => void;
   submitting: boolean;
   error: string | null;
@@ -225,7 +241,7 @@ function SimulatedCardForm({
           disabled={submitting}
           style={{ flex: 1, justifyContent: 'center' }}
         >
-          {submitting ? 'Processing…' : `Pay $${amount.toFixed(2)} ${journalInfo.currency}`}
+          {submitting ? 'Processing…' : `Pay ${displaySymbol}${amount.toLocaleString()} ${currency}`}
         </button>
       </div>
     </form>

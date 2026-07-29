@@ -4,12 +4,12 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Request, BackgroundTasks
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from limiter import limiter
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from database import get_db
-from models import EditorModel, BoardMemberModel, EditorSignupSchema
+from models import EditorModel, BoardMemberModel, EditorSignupSchema, AuthorModel, AuthorRegistrationSchema, AuthorLoginSchema
 from email_service import send_otp_email
 import uuid
 
@@ -170,6 +170,7 @@ class OTPVerify(BaseModel):
 @limiter.limit("3/minute")
 def send_verification_otp(request: Request, payload: OTPRequest, background_tasks: BackgroundTasks):
     otp_code = f"{secrets.randbelow(1000000):06d}"
+    print(f"\n[DEV MODE] Generated OTP for {payload.email}: {otp_code}\n")
     expires_at = datetime.utcnow() + timedelta(minutes=10)
     ACTIVE_OTPS[payload.email.lower()] = (otp_code, expires_at)
     
@@ -194,9 +195,96 @@ def verify_verification_otp(request: Request, payload: OTPVerify):
     ACTIVE_OTPS.pop(email_key, None)
     return {"status": "success", "message": "Email successfully verified."}
 
+@router.post("/author-register", response_model=Token)
+@limiter.limit("5/minute")
+def register_author(request: Request, payload: AuthorRegistrationSchema, db: Session = Depends(get_db)):
+    existing_author = db.query(AuthorModel).filter(AuthorModel.email == payload.email).first()
+    if existing_author:
+        raise HTTPException(status_code=400, detail="Author already registered with this email.")
+        
+    new_author = AuthorModel(
+        id=f"auth_{uuid.uuid4().hex[:8]}",
+        email=payload.email,
+        name=payload.name,
+        hashed_password=get_password_hash(payload.password),
+        affiliation=payload.affiliation,
+        country=payload.country,
+        orcid=payload.orcid,
+        field_of_research=payload.field_of_research
+    )
+    db.add(new_author)
+    db.commit()
+    db.refresh(new_author)
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": new_author.email, "role": "author"}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
 @router.post("/author-login", response_model=Token)
 @limiter.limit("10/minute")
-def author_login(request: Request, payload: OTPVerify):
+def author_login(request: Request, payload: AuthorLoginSchema, db: Session = Depends(get_db)):
+    author = db.query(AuthorModel).filter(AuthorModel.email == payload.email).first()
+    if not author or not verify_password(payload.password, author.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": author.email, "role": "author"}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+def get_current_author(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        role: str = payload.get("role")
+        if email is None or role not in ["author", "editor"]:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    
+    author = db.query(AuthorModel).filter(AuthorModel.email == email).first()
+    if not author:
+        # Check if they are an editor
+        if role == "editor":
+            editor = db.query(EditorModel).filter(EditorModel.email == email).first()
+            if editor:
+                return {"email": editor.email, "country": "N/A", "name": "Editor"} # Fallback for editors
+        raise credentials_exception
+    return author
+
+@router.get("/me")
+def get_author_profile(author = Depends(get_current_author)):
+    if isinstance(author, dict):
+        return author # Editor fallback
+    return {
+        "email": author.email,
+        "name": author.name,
+        "affiliation": author.affiliation,
+        "country": author.country,
+        "orcid": author.orcid,
+        "field_of_research": author.field_of_research
+    }
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    otp_code: str
+    new_password: str = Field(..., min_length=8)
+
+@router.post("/reset-password")
+@limiter.limit("5/minute")
+def reset_password(request: Request, payload: ResetPasswordRequest, db: Session = Depends(get_db)):
     email_key = payload.email.lower()
     if email_key not in ACTIVE_OTPS:
         raise HTTPException(status_code=400, detail="Invalid verification code or code expired.")
@@ -209,27 +297,12 @@ def author_login(request: Request, payload: OTPVerify):
     if stored_otp != payload.otp_code.strip():
         raise HTTPException(status_code=400, detail="Incorrect verification code.")
         
-    ACTIVE_OTPS.pop(email_key, None)
+    author = db.query(AuthorModel).filter(AuthorModel.email == email_key).first()
+    if not author:
+        raise HTTPException(status_code=404, detail="Author not found.")
+        
+    author.hashed_password = get_password_hash(payload.new_password)
+    db.commit()
     
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": payload.email, "role": "author"}, expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
-
-def get_current_author(token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        role: str = payload.get("role")
-        # Allow editors to also act as authors if needed, or strictly "author"
-        if email is None or role not in ["author", "editor"]:
-            raise credentials_exception
-        return email
-    except JWTError:
-        raise credentials_exception
+    ACTIVE_OTPS.pop(email_key, None)
+    return {"status": "success", "message": "Password successfully reset."}

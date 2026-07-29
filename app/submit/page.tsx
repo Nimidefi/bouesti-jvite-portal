@@ -1,13 +1,11 @@
 'use client';
 
-import { useState, FormEvent, useRef } from 'react';
+import { useState, FormEvent, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { categories, journalInfo, type Submission } from '@/lib/data';
 import { useSubmissions } from '@/lib/useSubmissions';
 import { API_URL } from '@/lib/config';
-import StripeProvider from '@/components/StripeProvider';
-import PaymentForm from '@/components/PaymentForm';
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -19,6 +17,7 @@ interface FormState {
   authorName: string;
   authorEmail: string;
   authorAffiliation: string;
+  authorCountry: string;
   authorOrcid: string;
   coAuthorNames: string;
   agreeEthics: boolean;
@@ -35,6 +34,7 @@ const initial: FormState = {
   authorName: '',
   authorEmail: '',
   authorAffiliation: '',
+  authorCountry: '',
   authorOrcid: '',
   coAuthorNames: '',
   agreeEthics: false,
@@ -59,7 +59,39 @@ export default function SubmitPage() {
   const [submissionId, setSubmissionId] = useState<string | null>(null);
   const [manuscriptFile, setManuscriptFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [authorLoading, setAuthorLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const token = sessionStorage.getItem('author_token');
+    if (!token) {
+      router.push('/login?callbackUrl=/submit');
+      return;
+    }
+    
+    fetch(`${API_URL}/api/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Not authenticated');
+        return res.json();
+      })
+      .then(data => {
+        setForm(f => ({
+          ...f,
+          authorName: data.name,
+          authorEmail: data.email,
+          authorAffiliation: data.affiliation,
+          authorCountry: data.country,
+          authorOrcid: data.orcid || ''
+        }));
+        setAuthorLoading(false);
+      })
+      .catch(() => {
+        sessionStorage.removeItem('author_token');
+        router.push('/login?callbackUrl=/submit');
+      });
+  }, [router]);
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -188,6 +220,13 @@ export default function SubmitPage() {
     }
   };
 
+  const getFeeString = () => {
+    return form.authorCountry === 'Nigeria' ? '₦45,000 NGN' : '$150 USD';
+  };
+
+  if (authorLoading) {
+    return <div className="page" style={{ justifyContent: 'center', minHeight: '50vh' }}>Loading...</div>;
+  }
 
   return (
     <div className="page">
@@ -289,42 +328,36 @@ export default function SubmitPage() {
                   <input
                     type="text"
                     value={form.authorName}
-                    onChange={(e) => set('authorName', e.target.value)}
-                    className={errors.authorName ? 'invalid' : ''}
+                    readOnly
+                    style={{ backgroundColor: 'var(--bg-hover)' }}
                   />
-                  {errors.authorName && <div className="error">{errors.authorName}</div>}
                 </div>
                 <div className="form-group">
                   <label>Email <span className="required">*</span></label>
                   <input
                     type="email"
                     value={form.authorEmail}
-                    onChange={(e) => set('authorEmail', e.target.value)}
-                    className={errors.authorEmail ? 'invalid' : ''}
+                    readOnly
+                    style={{ backgroundColor: 'var(--bg-hover)' }}
                   />
-                  {errors.authorEmail && <div className="error">{errors.authorEmail}</div>}
                 </div>
                 <div className="form-group full">
                   <label>Affiliation <span className="required">*</span></label>
                   <input
                     type="text"
                     value={form.authorAffiliation}
-                    onChange={(e) => set('authorAffiliation', e.target.value)}
-                    placeholder="Department, University, Country"
-                    className={errors.authorAffiliation ? 'invalid' : ''}
+                    readOnly
+                    style={{ backgroundColor: 'var(--bg-hover)' }}
                   />
-                  {errors.authorAffiliation && <div className="error">{errors.authorAffiliation}</div>}
                 </div>
                 <div className="form-group">
                   <label>ORCID (optional)</label>
                   <input
                     type="text"
                     value={form.authorOrcid}
-                    onChange={(e) => set('authorOrcid', e.target.value)}
-                    placeholder="0000-0000-0000-0000"
-                    className={errors.authorOrcid ? 'invalid' : ''}
+                    readOnly
+                    style={{ backgroundColor: 'var(--bg-hover)' }}
                   />
-                  {errors.authorOrcid && <div className="error">{errors.authorOrcid}</div>}
                 </div>
                 <div className="form-group">
                   <label>Co-Authors (optional)</label>
@@ -427,7 +460,7 @@ export default function SubmitPage() {
                   <span>
                     <strong>Copyright Agreement:</strong> I accept that, if accepted, the article
                     will be published under a CC BY 4.0 license and the publication fee of
-                    {' '}${journalInfo.publicationFee} {journalInfo.currency} will be invoiced.
+                    {' '}{getFeeString()} will be invoiced.
                   </span>
                 </label>
                 {errors.agreeCopyright && <div className="error">{errors.agreeCopyright}</div>}
@@ -478,7 +511,7 @@ export default function SubmitPage() {
         <div className="widget">
           <h3>Fee Information</h3>
           <p className="muted" style={{ fontSize: '0.9rem' }}>
-            A publication fee of <strong>${journalInfo.publicationFee} {journalInfo.currency}</strong>{' '}
+            A publication fee of <strong>{getFeeString()}</strong>{' '}
             is charged upon acceptance. Waivers are available for low-income countries.
           </p>
         </div>

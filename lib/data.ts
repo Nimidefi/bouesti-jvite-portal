@@ -40,21 +40,25 @@ export interface ArticlePreview {
 }
 
 export const journalInfo = {
-  title: 'Journal of Research in Vocational & Industrial Technology Education',
+  title: 'Journal of Research in Vocational and Technical Education',
   shortName: 'JVITE',
-  publisher: 'The Department of Vocational and Industrial Technology Education at BOUESTI (Bamidele Olumilua University of Education, Science and Technology, Ikere-Ekiti, Nigeria)',
-  issn: '0704-5280',
-  frequency: 'Bi-annual (June & December)',
+  publisher: 'Faculty of Vocational and Industrial Technology Education at BOUESTI (Bamidele Olumilua University of Education, Science and Technology, Ikere-Ekiti, Nigeria)',
+  e_issn: '0704-5280',
+  frequency: '2 volumes per year',
   founded: 2020,
   description:
-    'Journal of Research in Vocational & Industrial Technology Education is a peer-reviewed, open-access academic journal publishing high-quality research in vocational education, industrial technology, technical teacher training, and workforce development.',
+    'Journal of Research in Vocational and Technical Education is a peer-reviewed, open-access academic journal publishing high-quality research in vocational education, industrial technology, technical teacher training, and workforce development.',
   scope: [
-    'Vocational & Technical Education',
-    'Applied Science and Technology',
-    'Entrepreneurship in BVTE',
-    'Current issues in Education and Technology',
+    'Vocational Education',
+    'Industrial Technology Education',
+    'Business Education',
+    'Fine and Applied Arts',
+    'Home Economics',
+    'Agricultural Science Education',
+    'Computer Science',
+    'Technology and Engineering.'
   ],
-  indexing: ['Google Scholar', 'CrossRef', 'DOAJ', 'EBSCO', 'MyCite'],
+  indexing: ['Google Scholar'],
   publicationFee: 150, // USD
   currency: 'USD',
 };

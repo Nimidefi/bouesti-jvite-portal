@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Header from '@/components/Header';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import SessionProtector from '@/components/SessionProtector';
 
 export const metadata: Metadata = {
   title: 'JVITE – Journal of Vocational & Industrial Technology Education',
@@ -14,6 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
+        <SessionProtector />
         <Header />
         <Navigation />
         {children}

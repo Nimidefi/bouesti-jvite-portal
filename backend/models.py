@@ -79,6 +79,19 @@ class BoardMemberModel(Base):
     id = Column(String, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
 
+class AuthorModel(Base):
+    __tablename__ = "authors"
+
+    id = Column(String, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    affiliation = Column(String, nullable=False)
+    country = Column(String, nullable=False)
+    orcid = Column(String, nullable=True)
+    field_of_research = Column(String, nullable=False)
+
+
 # Pydantic Models for Validation
 class AuthorSchema(BaseModel):
     name: str
@@ -90,6 +103,21 @@ class EditorSignupSchema(BaseModel):
     email: str
     password: str = Field(..., min_length=8)
     confirm_password: str
+
+class AuthorRegistrationSchema(BaseModel):
+    name: str
+    email: str
+    password: str = Field(..., min_length=8)
+    affiliation: str
+    country: str
+    orcid: Optional[str] = None
+    field_of_research: str
+
+class AuthorLoginSchema(BaseModel):
+    email: str
+    password: str
+
+
 
 class SubmissionCreate(BaseModel):
     title: str = Field(..., min_length=10, max_length=200)

@@ -15,7 +15,7 @@ export default function Footer() {
             in vocational and industrial technology education since {journalInfo.founded}.
           </p>
           <p className="muted" style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>
-            {journalInfo.issn}
+            {journalInfo.e_issn}
           </p>
         </div>
         <div>

@@ -26,14 +26,29 @@ export default function DashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
 
+  const [authorCountry, setAuthorCountry] = useState<string | null>(null);
+
   useEffect(() => {
-    const token = localStorage.getItem('author_token');
+    const token = sessionStorage.getItem('author_token');
     if (!token) {
-      router.push('/dashboard/login');
+      router.push('/login?callbackUrl=/dashboard');
     } else {
       setIsAuthenticated(true);
+      fetch(`${API_URL}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data) setAuthorCountry(data.country);
+        })
+        .catch(console.error);
     }
   }, [router]);
+
+  const getAmount = () => authorCountry === 'Nigeria' ? 45000 : 150;
+  const getCurrency = () => authorCountry === 'Nigeria' ? 'NGN' : 'USD';
+  const getFeeString = () => authorCountry === 'Nigeria' ? '₦45,000 NGN' : '$150 USD';
+
 
   if (!isAuthenticated) return null;
 
@@ -48,8 +63,8 @@ export default function DashboardPage() {
           <button 
             className="btn btn-ghost" 
             onClick={() => {
-              localStorage.removeItem('author_token');
-              router.push('/dashboard/login');
+              sessionStorage.removeItem('author_token');
+              router.push('/login');
             }}
           >
             Log Out
@@ -120,7 +135,8 @@ export default function DashboardPage() {
                   <div>
                     <StripeProvider clientSecret={clientSecret}>
                       <PaymentForm
-                        amount={journalInfo.publicationFee}
+                        amount={getAmount()}
+                        currency={getCurrency()}
                         description={`Publication fee for "${s.title}"`}
                         onSuccess={async (pi) => {
                           try {
@@ -159,7 +175,7 @@ export default function DashboardPage() {
                         const paymentRes = await fetch(`${API_URL}/api/payments/create-intent`, {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ amount: journalInfo.publicationFee, submissionId: s.id }),
+                          body: JSON.stringify({ amount: getAmount(), currency: getCurrency(), submissionId: s.id }),
                         });
                         if (paymentRes.ok) {
                           const paymentData = await paymentRes.json();
@@ -174,7 +190,7 @@ export default function DashboardPage() {
                       }
                     }}
                   >
-                    {payingId === s.id ? 'Loading...' : `Pay $${journalInfo.publicationFee} ${journalInfo.currency} Publication Fee`}
+                    {payingId === s.id ? 'Loading...' : `Pay ${getFeeString()} Publication Fee`}
                   </button>
                 )}
               </>

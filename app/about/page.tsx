@@ -42,8 +42,10 @@ export default function AboutPage() {
               <tr><td>Prof. R.S. Olojuolawe</td><td>Editor-in-Chief</td><td>Bamidele Olumilua University of Education, Science and Technology, Ikere-Ekiti, Nigeria</td></tr>
               <tr><td>Prof. E.O. Osuntuyi</td><td>Managing Editor</td><td>Bamidele Olumilua University of Education, Science and Technology, Ikere-Ekiti, Nigeria</td></tr>
               <tr><td>Prof. A.B. Ibidapo</td><td>Managing Editor</td><td>Bamidele Olumilua University of Education, Science and Technology, Ikere-Ekiti, Nigeria</td></tr>
-              <tr><td>Dr. O.O. Olakotan</td><td>Editoral Assitant</td><td>Bamidele Olumilua University of Education, Science and Technology, Ikere-Ekiti, Nigeria</td></tr>
-              <tr><td>Dr. Olaoluwa Adegboye</td><td>Editoral Assitant</td><td>Bamidele Olumilua University of Education, Science and Technology, Ikere-Ekiti, Nigeria</td></tr>
+              <tr><td>Dr. Theodorio, A.O.</td><td>Consulting Editor</td><td>Global Institute of Teacher Education, Cape Pennisula University, South Africa</td></tr>
+              <tr><td>Dr. Adegboye Olaoluwa</td><td>Consulting Editor</td><td>Prairie A&M University, Texas, USA</td></tr>
+              <tr><td>Dr. O.O. Olakotan</td><td>Editoral Assistant</td><td>Bamidele Olumilua University of Education, Science and Technology, Ikere-Ekiti, Nigeria</td></tr>
+              <tr><td>Prof. M.O. Olowe</td><td>Editoral Member</td><td>Bamidele Olumilua University of Education, Science and Technology, Ikere-Ekiti, Nigeria</td></tr>
               <tr><td>Dr. A. Olatilu</td><td>Editoral Member</td><td>Bamidele Olumilua University of Education, Science and Technology, Ikere-Ekiti, Nigeria</td></tr>
               <tr><td>Mr Pius Ogunjobi</td><td>Editoral Member</td><td>Bamidele Olumilua University of Education, Science and Technology, Ikere-Ekiti, Nigeria</td></tr>
               <tr><td>Mrs Orisamika Bukola</td><td>Editoral Member</td><td>Bamidele Olumilua University of Education, Science and Technology, Ikere-Ekiti, Nigeria</td></tr>
@@ -85,7 +87,7 @@ export default function AboutPage() {
         <div className="widget">
           <h3>Quick Facts</h3>
           <ul>
-            <li><span>ISSN:</span><strong>{journalInfo.issn}</strong></li>
+            <li><span>E-ISSN:</span><strong>{journalInfo.e_issn}</strong></li>
             <li><span>Founded:</span><strong>{journalInfo.founded}</strong></li>
             <li><span>Frequency:</span><strong>{journalInfo.frequency}</strong></li>
             <li><span>Publisher:</span><strong>{journalInfo.publisher}</strong></li>

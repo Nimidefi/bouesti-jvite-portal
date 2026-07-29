@@ -12,7 +12,7 @@ export default function Header() {
     <header className="site-header">
       <div className="utility-bar">
         <div className="inner">
-          <span>ISSN: {journalInfo.issn} &nbsp;·&nbsp; {journalInfo.frequency}</span>
+          <span>e-ISSN: {journalInfo.e_issn} &nbsp;·&nbsp; {journalInfo.frequency}</span>
           <span>
             <Link href="/about#editorial-board">Editorial Board</Link> &nbsp;|&nbsp;{' '}
             <a href="#">Indexing</a> &nbsp;|&nbsp;{' '}
@@ -22,9 +22,9 @@ export default function Header() {
       </div>
       <div className="inner">
         <Link href="/" className="brand" style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-          <img src="/logo.png" alt="BOUESTI JVITE Logo" style={{ width: '56px', height: '56px', objectFit: 'contain', flexShrink: 0 }} />
+          <img src="/logo.png" alt="BOUESTI JVITE Logo" style={{ width: '56px', height: '56px', objectFit: 'contain', flexShrink: 0, transform: 'scale(0.8)' }} />
           <div className="brand-text">
-            <h1>Journal of Vocational &amp; Industrial Technology Education</h1>
+            <h1>Journal of Research in Vocational &amp; Technical Education</h1>
             <p>{journalInfo.publisher}</p>
           </div>
         </Link>
