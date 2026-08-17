@@ -15,10 +15,10 @@ export default function ContactPage() {
         <div className="card">
           <h2 className="section-title">Editorial Office</h2>
           <div className="kv">
-            <div className="k">Address</div><div>Department of Vocational &amp; Industrial Technology Education<br/>College of Technology<br/>BOUESTI University Campus, Building E, Room 304</div>
+            <div className="k">Address</div><div>Faculty of Vocational &amp; Industrial Technology Education<br />BOUESTI University Campus, Ikere-Ekiti, Ekiti State, Nigeria.</div>
             <div className="k">Email</div><div>editor@jvite.bouesti.edu</div>
             <div className="k">Submissions</div><div>submissions@jvite.bouesti.edu</div>
-            <div className="k">Phone</div><div>+1 (555) 234-5678</div>
+            <div className="k">Phone</div><div>+234 (703) 068-6851</div>
             <div className="k">Office Hours</div><div>Mon–Fri, 9:00 – 17:00 (UTC+1)</div>
           </div>
         </div>
